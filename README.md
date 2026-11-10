@@ -7,8 +7,9 @@ Interactive, browser-based photonics simulations for teaching and research.
 | Simulation | Description |
 |---|---|
 | [Optical cavity: transmission & bistability](https://talegre.github.io/photons/cavity/) | One- and two-port Fabry–Pérot / ring resonators in temporal coupled-mode theory, with thermo-optic (red shift) or free-carrier dispersion (blue shift) nonlinearity, steady-state branches with stability, and time-domain laser sweeps showing hysteresis. |
+| [Cavity optomechanics: transduction & backaction](https://talegre.github.io/photons/optomechanics/) | Linearized optomechanics with direct detection on an ESA: transduction vs detuning (resolved/unresolved sideband), dependence on g₀, Ω_m, T and T_eff, thermal bistability during laser sweeps, PSD (dBm) → displacement calibration, optical spring/damping vs power, sideband cooling limit and OMIT/OMIA. Conventions of Aspelmeyer, Kippenberg & Marquardt, RMP 86, 1391 (2014). |
 
-Each simulation is a single self-contained HTML file (plain JavaScript, no dependencies), so it also works offline: just open the `index.html` of the folder.
+Each simulation is a single self-contained HTML file, so it also works offline: just open the `index.html` of the folder. The cavity page is plain JavaScript; the optomechanics page has Plotly.js (MIT license) inlined, which is why it is ~4.5 MB.
 
 ## Model (cavity)
 
