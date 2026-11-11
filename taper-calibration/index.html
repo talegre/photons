@@ -69,7 +69,8 @@ select{max-width:170px}
 .fib{fill:none;stroke:var(--silica);stroke-width:7;stroke-linecap:round}
 .si{fill:var(--si)}
 .inv{fill:var(--si-ink)}
-.flow{fill:none;stroke-dasharray:7 11;stroke-linecap:round;animation:fl 1.1s linear infinite}
+.flow{fill:none;stroke-dasharray:7 11;stroke-linecap:round;animation:fl 1.1s linear infinite;transition:opacity .45s,stroke-width .45s}
+#scat,#gapT{transition:opacity .45s}
 .paused .flow{animation-play-state:paused}
 @keyframes fl{to{stroke-dashoffset:-36}}
 @media (prefers-reduced-motion:reduce){.flow{animation:none}}
@@ -243,13 +244,13 @@ $('side').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)
 function buildSchem(){
  const fl=(id,d,c)=>`<path id="${id}" class="flow ${c}" d="${d}"/>`;
  const lab=(x,y,a,title,ids,cls)=>`<text x="${x}" y="${y}" text-anchor="${a}" class="lab sm">${title}${ids.map((id,i)=>`<tspan x="${x}" dy="15" id="${id}" class="labv ${cls&&cls[i]||''}"></tspan>`).join('')}</text>`;
- const LOOP1='M560,90 C640,90 630,262 700,262',LOOP2='M700,262 C770,262 760,90 840,90';
+ const LP=loopPaths(0),LOOP1=LP.L1,LOOP2=LP.L2;
  $('sx').innerHTML=`<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="context-stroke"/></marker>
  <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="var(--metal)"/><line x1="0" y1="0" x2="0" y2="4" stroke="var(--comp)" stroke-width="1.2"/></pattern></defs>
  <text x="20" y="22" class="ttl">Setup</text>
  <!-- fibers -->
  <path class="fib" d="M100,90 H374"/><path class="fib" d="M150,104 V160"/><path class="fib" d="M426,90 H560"/>
- <path class="fib" d="${LOOP1}"/><path class="fib" d="${LOOP2}"/><path class="fib" d="M840,90 H905"/>
+ <path id="gL1" class="fib" d="${LOOP1}"/><path id="gL2" class="fib" d="${LOOP2}"/><path class="fib" d="M840,90 H905"/>
  <path class="fib" d="M400,116 V216"/><path class="fib" d="M414,230 H458"/><path class="fib" d="M400,244 V292"/>
  <!-- chip -->
  <rect x="600" y="266" width="290" height="50" rx="3" class="si"/>
@@ -260,7 +261,7 @@ function buildSchem(){
  ${fl('fL','M100,90 H136','cf')}${fl('fA','M164,90 H298','cf')}${fl('f0','M298,90 H374','cf')}${fl('fM','M150,104 V160','cf')}
  ${fl('f1','M426,90 H560','cf')}${fl('fC1',LOOP1,'cf')}${fl('fC2',LOOP2,'cf')}${fl('f2','M840,90 H905','cf')}
  ${fl('fW','M712,286 H866','cw')}${fl('fWr','M866,300 H614','cr')}
- ${fl('fB1','M700,262 C630,262 640,90 560,90','cr')}${fl('fB2','M560,90 H426','cr')}
+ ${fl('fB1',LP.B1,'cr')}${fl('fB2','M560,90 H426','cr')}
  ${fl('f3','M400,116 V216','cr')}${fl('fF','M414,230 H458','cr')}${fl('fS','M400,244 V292','cr')}
  <g id="scat">${[-150,-125,-55,-30].map(a=>{const r=a*Math.PI/180;return `<line x1="${700+9*Math.cos(r)}" y1="${262+9*Math.sin(r)}" x2="${700+28*Math.cos(r)}" y2="${262+28*Math.sin(r)}" class="cs" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 4"/>`}).join('')}</g>
  <!-- components -->
@@ -287,6 +288,7 @@ function buildSchem(){
  ${lab(612,150,'end','In fiber, before contact',['tC'])}
  ${lab(800,170,'start','In fiber, after contact',['tCa'])}
  ${lab(700,190,'middle','scattered',['tSc'],['ts'])}
+ <text id="gapT" x="712" y="250" class="lab sm" style="opacity:0">gap</text>
  ${lab(388,166,'end','(3) port 3',['t3'],['tr'])}
  ${lab(446,258,'start','Fast det. 90 %',['tFa'])}
  ${lab(418,300,'start','Slow det. 10 %',['tSl'])}
@@ -296,7 +298,16 @@ function buildSchem(){
 const pv=p=>p>0?fd(dB(p))+' dBm · '+fP(p):'—';
 function setFlow(id,P){const e=$(id);if(!e)return;if(!(P>1e-15)){e.style.opacity=0;return}
  const w=1.3+4.2*Math.min(1,Math.max(0,(dB(P)+65)/40));e.style.opacity=1;e.setAttribute('stroke-width',w.toFixed(2))}
+// loop lift animation (taper lifted from the chip)
+const LIFT=34;let lift=0,liftTarget=0;
+function loopPaths(l){const y=262-l;return{L1:`M560,90 C640,90 630,${y} 700,${y}`,L2:`M700,${y} C770,${y} 760,90 840,90`,B1:`M700,${y} C630,${y} 640,90 560,90`}}
+function setLift(target){if(target===liftTarget)return;liftTarget=target;const start=lift,t0=performance.now(),dur=450;
+ (function step(now){const u=Math.min(1,(now-t0)/dur),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;lift=start+(target-start)*e;
+  const P=loopPaths(lift);['gL1','fC1'].forEach(i=>$(i).setAttribute('d',P.L1));['gL2','fC2'].forEach(i=>$(i).setAttribute('d',P.L2));$('fB1').setAttribute('d',P.B1);
+  const g=$('gapT');g.style.opacity=lift>8?1:0;g.setAttribute('y',(262-lift/2+5).toFixed(1));
+  if(u<1&&liftTarget===target)requestAnimationFrame(step)})(t0)}
 function drawSchem(N,touch){
+ setLift(touch?0:LIFT);
  $('sx').classList.toggle('paused',!S.anim);
  const F={fL:N.PL,fA:N.Pa,f0:N.P0,fM:N.Pmon,f1:N.P1,fC1:N.Pc,fC2:N.Pthr,f2:N.P2,fW:N.Pwg,fWr:N.Pwr,fB1:N.Pback,fB2:N.Pb1,f3:N.P3,fF:N.Pfast,fS:N.Pslow};
  for(const k in F)setFlow(k,F[k]);
