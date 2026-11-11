@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Loss calibration of a fiber setup with a loop taper touching a waveguide with an end reflector: extracts per-pass coupling and contact scattering from transmission and reflection.">
+<title>Setup calibration: loop taper + waveguide with reflector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#f4f6f7;--text-primary:#1c252e;--text-secondary:#46525d;--text-muted:#6b7680;--surface-1:#e8edf0;--border:#cfd7dd;--border-accent:#2a78d6;--radius:8px;--si:#3a4350;--si-ink:#f4f6f7;--silica:#a9d0de;--comp:#ffffff;--grid:#dde3e7;--fwd:#eb6834;--wg:#2a78d6;--ret:#8a5cd1;--sc:#1d9e75;--cal:#8c98a3;--warn-bg:#fdf0e6;--warn:#9a3d0c;--metal:#c9a43a}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#14181c;--text-primary:#e6eaee;--text-secondary:#b3bcc4;--text-muted:#8b96a0;--surface-1:#1e252b;--border:#323c45;--border-accent:#5b9be6;--si:#4a5560;--si-ink:#e6eaee;--silica:#3f7385;--comp:#262e35;--grid:#2a3238;--fwd:#e0612e;--wg:#3f87e0;--ret:#9468d8;--sc:#1fa87d;--cal:#6d7985;--warn-bg:#3a2617;--warn:#f0b07a;--metal:#b8952e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text-primary);font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.45}
+main{max-width:1480px;margin:0 auto;padding:28px 20px 48px}
+.back{font-size:12px;color:var(--border-accent);text-decoration:none;display:inline-block;margin-bottom:4px}
+h1{font-size:26px;font-weight:600;margin:0 0 6px;letter-spacing:-0.01em}
+h3{font-size:16px;font-weight:600;margin:26px 0 4px}
+.lede{color:var(--text-secondary);max-width:80ch;margin:0 0 20px}
+figure{margin:0 0 18px;background:var(--surface-1);border-radius:var(--radius);padding:12px 12px 6px}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:13px;color:var(--text-muted);padding:4px 6px 6px}
+.layout{display:grid;grid-template-columns:320px minmax(0,1fr);gap:28px;align-items:start}
+aside{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--surface-1);border-radius:var(--radius);padding:10px 16px}
+aside section{padding:10px 0;border-bottom:1px solid var(--border)}
+aside section:last-child{border-bottom:none}
+aside h2{font-size:14px;font-weight:600;margin:0 0 6px;color:var(--text-primary)}
+.sh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
+.sh h2{margin:0}
+.est{font-style:normal;font-weight:400;font-size:11px;color:var(--warn);border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-left:4px}
+button{font:inherit;font-size:14px;color:var(--text-primary);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer}
+button:hover{background:var(--surface-1)}
+button.on{border-color:var(--border-accent);box-shadow:inset 0 0 0 1px var(--border-accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--border-accent);outline-offset:2px}
+.seg{display:flex;gap:6px}.seg button{flex:1}
+.seg.sm button{font-size:12px;padding:2px 8px;flex:none}
+.fld{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0}
+.fld label{font-size:13.5px;color:var(--text-secondary)}
+.iw{display:flex;align-items:center;gap:4px;flex:none}
+.iw i{font-style:normal;font-size:12px;color:var(--text-muted);width:30px}
+input[type=number],select{font:inherit;font-size:14px;color:var(--text-primary);background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:2px 6px;font-variant-numeric:tabular-nums}
+input[type=number]{width:86px;text-align:right}
+select{max-width:170px}
+.il{font-size:12px;color:var(--text-muted);text-align:right;margin:-2px 0 4px}
+.ctl{margin:8px 0 10px}
+.ctl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px}
+.ctl-h label{color:var(--text-secondary)}
+.ctl-h span{font-weight:600;font-variant-numeric:tabular-nums}
+.ctl input{width:100%;margin:4px 0 0;accent-color:var(--wg)}
+.chk{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--text-secondary)}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.card{background:var(--surface-1);border-radius:var(--radius);padding:.6rem .8rem}
+.card p{margin:0}.card .l{font-size:12px;color:var(--text-secondary)}.card .n{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}.card .s{font-size:12.5px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+.card.key{box-shadow:inset 3px 0 0 var(--wg)}
+.card.key2{box-shadow:inset 3px 0 0 var(--sc)}
+#warn{display:none;background:var(--warn-bg);color:var(--warn);border-radius:var(--radius);padding:8px 12px;font-size:14px;margin:10px 0}
+.lg{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0 6px;font-size:13px;color:var(--text-secondary);align-items:center}
+.lg span{display:flex;align-items:center;gap:6px}
+.sw{width:16px;height:0;border-top:3px solid}
+.bx{width:11px;height:11px;border-radius:2px}
+.lab{fill:var(--text-secondary);font-size:13px;font-family:inherit}
+.labv{fill:var(--text-primary);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.sm{font-size:11.5px}
+.ttl{fill:var(--text-primary);font-size:15px;font-weight:600}
+.cmp{fill:var(--comp);stroke:var(--text-muted);stroke-width:1.3}
+.cmpl{fill:none;stroke:var(--text-muted);stroke-width:1.3}
+.pd{fill:var(--text-secondary)}
+.fib{fill:none;stroke:var(--silica);stroke-width:7;stroke-linecap:round}
+.si{fill:var(--si)}
+.inv{fill:var(--si-ink)}
+.flow{fill:none;stroke-dasharray:7 11;stroke-linecap:round;animation:fl 1.1s linear infinite}
+.paused .flow{animation-play-state:paused}
+@keyframes fl{to{stroke-dashoffset:-36}}
+@media (prefers-reduced-motion:reduce){.flow{animation:none}}
+.cf{stroke:var(--fwd)}.cw{stroke:var(--wg)}.cr{stroke:var(--ret)}.cs{stroke:var(--sc)}
+.tf{fill:var(--fwd)}.tw{fill:var(--wg)}.tr{fill:var(--ret)}.ts{fill:var(--sc)}
+.node{fill:var(--bg);stroke:var(--text-primary);stroke-width:1.5}
+.ax{stroke:var(--text-muted);stroke-width:1}
+.gl{stroke:var(--grid);stroke-width:1}
+.tick{fill:var(--text-muted);font-size:12px;font-variant-numeric:tabular-nums}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 8px;border-bottom:1px solid var(--border);text-align:right}
+th{font-weight:600;color:var(--text-secondary);font-size:13px}
+td:nth-child(1),td:nth-child(2),th:nth-child(1),th:nth-child(2){text-align:left}
+td:nth-child(1){font-weight:600}
+.note{font-size:13.5px;color:var(--text-secondary);max-width:92ch}
+.note code,.eq{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+.eq{background:var(--surface-1);border-radius:6px;padding:8px 12px;display:block;white-space:pre;overflow:auto;color:var(--text-primary)}
+@media (max-width:900px){.layout{grid-template-columns:1fr}aside{position:static;max-height:none}}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../">← photons · all simulations</a>
+<h1>Setup calibration: loop taper + waveguide with reflector</h1>
+<p class="lede">Measured loss of each component → power at every point of the setup → coupling η (fiber ↔ waveguide, per pass) and scattering loss s at the contact. The calculation combines the transmission drop (1)→(2) with the reflected power reaching (3).</p>
+<div class="layout">
+<aside id="side"></aside>
+<div class="content">
+<figure>
+<svg id="sx" viewBox="0 0 1000 360" role="img" aria-label="Setup schematic: laser, monitor beam splitter, polarization controller, circulator, loop taper on the waveguide with reflector, 10/90 beam splitter and detectors, with the power at each point."></svg>
+<figcaption>Not to scale. Orange: forward light in the fiber · blue: light in the waveguide · purple: reflected light coming back · green: scattering at the contact. Line width ∝ power (dBm). The taper loss is split at the contact point by the fraction f (default ½ in dB on each side).</figcaption>
+</figure>
+<div id="warn"></div>
+<div class="cards" id="cards"></div>
+
+<h3>Where the power goes at the contact (per pass)</h3>
+<div class="lg"><span><span class="bx" style="background:var(--wg)"></span>η · coupled to the waveguide</span><span><span class="bx" style="background:var(--sc)"></span>s · scattered / lost</span><span><span class="bx" style="background:var(--fwd)"></span>1 − η − s · stays in the fiber</span></div>
+<svg id="cF" viewBox="0 0 1000 70" style="width:100%;height:auto"></svg>
+
+<h3>Loss budget</h3>
+<div class="lg"><span><span class="bx" style="background:var(--cal)"></span>Calibrated components</span><span><span class="bx" style="background:var(--wg)"></span>Coupling η</span><span><span class="bx" style="background:var(--fwd)"></span>Extraction at the contact (η + s)</span><span><span class="bx" style="background:var(--sc)"></span>Added background</span><span>◇ measured</span></div>
+<svg id="cW" viewBox="0 0 1000 300" style="width:100%;height:auto"></svg>
+
+<h3>Sensitivity to waveguide + reflector loss (from the measurements)</h3>
+<p class="note" style="margin:0 0 4px">The effective reflectivity R (reflector × round-trip propagation in the waveguide) is not measured directly. The higher this loss, the larger the η needed to explain the reflection and the smaller the remaining s. In the shaded region s &lt; 0: the data become inconsistent.</p>
+<div class="lg"><span><span class="sw" style="border-color:var(--wg)"></span>η</span><span><span class="sw" style="border-color:var(--sc)"></span>s</span><span><span class="sw" style="border-color:var(--text-muted);border-top-style:dashed"></span>η + s (from transmission)</span><span><span class="sw" style="border-color:var(--text-primary);border-top-style:dotted"></span>current value</span></div>
+<svg id="cS" viewBox="0 0 1000 250" style="width:100%;height:auto"></svg>
+
+
+<h3>Model</h3>
+<div class="note">
+<span class="eq">T_t = suspended-taper transmission;  T_a = T_t^f (before contact),  T_b = T_t^(1−f) (after)
+R   = reflector × waveguide propagation (round trip)
+
+Transmission: P(2) = P(1) · T_a · (1 − η − s) · T_b          →  τ = P(2) / (P(1)·T_t) = 1 − η − s
+Reflection:   P(3) = P(1) · T_a · η · R · η · T_a · T_c23 + P_bg
+              ρ = (P(3) − P_bg) / (P(1) · T_a² · T_c23) = η² · R
+Solution:     η = √(ρ / R),   s = 1 − τ − η</span>
+<p>Assumptions: co-directional, reciprocal coupling (same η and s on the way in and on the way back); light returning in the waveguide that is not re-coupled continues to the far end of the waveguide and is lost (no cavity); background added incoherently; backscattering at the contact is included in the background. The uncertainty propagates an independent σ (dB) on every reading that enters the calculation. The monitor beam splitter and the polarization controller only affect the result if the power reference is the laser or the monitor.</p>
+</div>
+</div>
+</div>
+</main>
+<script>
+const COMPS=[
+ {id:'bs1',name:'Beam splitter (monitor)',inLabel:'Input',ports:[['thr','Main output'],['tap','Monitor output']],mode:'loss',loss:{thr:0.46,tap:10.0},pw:{in:0,thr:-0.46,tap:-10.0},est:true},
+ {id:'pc',name:'Polarization controller',inLabel:'Input',ports:[['out','Output · point (0)']],mode:'loss',loss:{out:0.10},pw:{in:0,out:-0.10},est:true},
+ {id:'c12',name:'Circulator 1 → 2',inLabel:'Port 1 · point (0)',ports:[['out','Port 2 · point (1)']],mode:'pw',loss:{out:2.75},pw:{in:-26.86,out:-29.61}},
+ {id:'c23',name:'Circulator 2 → 3',inLabel:'Port 2',ports:[['out','Port 3 · point (3)']],mode:'pw',loss:{out:1.68},pw:{in:-26.90,out:-28.58}},
+ {id:'tpr',name:'Suspended loop taper',inLabel:'Input · point (1)',ports:[['out','Output · point (2)']],mode:'loss',loss:{out:3.28},pw:{in:-29.61,out:-32.89}},
+ {id:'bs2',name:'Beam splitter 10/90',inLabel:'Input · point (3)',ports:[['p90','90 % port (fast)'],['p10','10 % port (slow)']],mode:'pw',loss:{p90:0.75,p10:9.93},pw:{in:-28.58,p90:-29.33,p10:-38.51}}
+];
+function defaults(){const comp={};for(const c of COMPS)comp[c.id]={mode:c.mode,loss:{...c.loss},pw:{...c.pw}};
+ return{comp,Rm:0,alpha:0,Lwg:1,f:0.5,refType:'p1',refVal:-29.61,P2:-37.30,reflType:'p3',reflVal:-40.42,bgOn:false,bgVal:-60,sigma:0.05,mode:'ext',touch:'on',etaS:0.51,sS:0.13,anim:true}}
+const KEY='calib_setup_taper_v1';
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!S.comp||!COMPS.every(c=>S.comp[c.id]))S=defaults();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+const $=id=>document.getElementById(id);
+const getP=(o,p)=>p.split('.').reduce((a,k)=>a[k],o);
+function setP(o,p,v){const ks=p.split('.'),l=ks.pop();ks.reduce((a,k)=>a[k],o)[l]=v}
+const mw=d=>Math.pow(10,d/10), dB=x=>10*Math.log10(x), g=l=>Math.pow(10,-l/10);
+const M='−';
+const fd=(x,n=2)=>!isFinite(x)?'—':(x<0?M:'')+Math.abs(x).toFixed(n);
+function fP(p){if(!(p>0)||!isFinite(p))return '—';const u=[[1,'mW'],[1e-3,'µW'],[1e-6,'nW'],[1e-9,'pW']];for(const [s,n] of u)if(p>=s){const v=p/s;return v.toPrecision(3)+' '+n}return (p/1e-9).toPrecision(3)+' pW'}
+const fPct=x=>!isFinite(x)?'—':(100*x).toFixed(1)+' %';
+function IL(St,id,p){const c=St.comp[id];return c.mode==='pw'?c.pw.in-c.pw[p]:c.loss[p]}
+
+// ---------- core extraction ----------
+function core(St){
+ const L=(id,p)=>IL(St,id,p);
+ const t={bs1t:g(L('bs1','thr')),bs1m:g(L('bs1','tap')),pc:g(L('pc','out')),c12:g(L('c12','out')),c23:g(L('c23','out')),Tt:g(L('tpr','out')),b90:g(L('bs2','p90')),b10:g(L('bs2','p10'))};
+ t.Ta=Math.pow(t.Tt,St.f);t.Tb=Math.pow(t.Tt,1-St.f);
+ const ReffdB=St.Rm+2*St.alpha*St.Lwg/10;t.R=g(ReffdB);
+ const gain={laser:1,mon:t.bs1m,p0:t.bs1t*t.pc,p1:t.bs1t*t.pc*t.c12}[St.refType];
+ const PL=mw(St.refVal)/gain,P1=PL*t.bs1t*t.pc*t.c12;
+ const P3m=mw(St.reflVal)/{p3:1,fast:t.b90,slow:t.b10}[St.reflType],Pbg=St.bgOn?mw(St.bgVal):0;
+ const tau=mw(St.P2)/(P1*t.Tt),rho=(P3m-Pbg)/(P1*t.Ta*t.Ta*t.c23);
+ const eta=rho>0?Math.sqrt(rho/t.R):NaN,s=1-tau-eta;
+ const Rmin=(rho>0&&tau<1)?rho/((1-tau)*(1-tau)):NaN;
+ return{t,ReffdB,PL,P1,P3m,Pbg,tau,rho,eta,s,maxLoss:-dB(Rmin)};
+}
+function nodes(C,eta,s,St){const t=C.t,PL=C.PL;
+ const N={PL,Pmon:PL*t.bs1m,Pa:PL*t.bs1t};N.P0=N.Pa*t.pc;N.P1=N.P0*t.c12;N.Pc=N.P1*t.Ta;
+ N.Pwg=N.Pc*eta;N.Psc1=N.Pc*s;N.Pthr=N.Pc*Math.max(0,1-eta-s);N.P2=N.Pthr*t.Tb;
+ N.Pwr=N.Pwg*t.R;N.Pback=N.Pwr*eta;N.Psc2=N.Pwr*s;N.Pwgl=N.Pwr*Math.max(0,1-eta-s);N.Pb1=N.Pback*t.Ta;
+ N.P3sig=N.Pb1*t.c23;N.P3=N.P3sig+C.Pbg;N.Pfast=N.P3*t.b90;N.Pslow=N.P3*t.b10;return N}
+function measKeys(St){const k=['refVal','P2','reflVal'];if(St.bgOn)k.push('bgVal');
+ for(const c of COMPS){const st=St.comp[c.id];if(st.mode==='pw'){k.push(`comp.${c.id}.pw.in`);c.ports.forEach(p=>k.push(`comp.${c.id}.pw.${p[0]}`))}else c.ports.forEach(p=>k.push(`comp.${c.id}.loss.${p[0]}`))}return k}
+function unc(St){let se=0,ss=0;const sg=St.sigma;if(!(sg>0))return[0,0];
+ for(const k of measKeys(St)){const a=JSON.parse(JSON.stringify(St)),b=JSON.parse(JSON.stringify(St));
+  setP(a,k,getP(St,k)+sg);setP(b,k,getP(St,k)-sg);const ca=core(a),cb=core(b);
+  const de=(ca.eta-cb.eta)/2,ds=(ca.s-cb.s)/2;if(isFinite(de)&&isFinite(ds)){se+=de*de;ss+=ds*ds}}
+ return[Math.sqrt(se),Math.sqrt(ss)]}
+
+// ---------- sidebar ----------
+function fld(path,label,unit,step){const id='i_'+path.replace(/\./g,'_');
+ return `<div class="fld"><label for="${id}">${label}</label><span class="iw"><input type="number" step="${step||0.01}" id="${id}" data-p="${path}" value="${getP(S,path)}"><i>${unit}</i></span></div>`}
+function compHTML(c){const st=S.comp[c.id];
+ let h=`<section><div class="sh"><h2>${c.name}${c.est?'<em class="est">not measured</em>':''}</h2><div class="seg sm"><button data-cm="${c.id}" data-v="pw" class="${st.mode==='pw'?'on':''}" title="Enter measured powers">dBm</button><button data-cm="${c.id}" data-v="loss" class="${st.mode==='loss'?'on':''}" title="Enter the component loss">dB</button></div></div>`;
+ if(st.mode==='pw'){h+=fld(`comp.${c.id}.pw.in`,c.inLabel,'dBm');for(const [k,lab] of c.ports)h+=fld(`comp.${c.id}.pw.${k}`,lab,'dBm')+`<div class="il" id="il_${c.id}_${k}"></div>`}
+ else for(const [k,lab] of c.ports)h+=fld(`comp.${c.id}.loss.${k}`,'Loss → '+lab,'dB');
+ return h+'</section>'}
+function opt(v,cur,l){return `<option value="${v}"${v===cur?' selected':''}>${l}</option>`}
+function buildSide(){
+ let h=`<section><h2>Mode</h2><div class="seg"><button data-s="mode" data-v="ext" class="${S.mode==='ext'?'on':''}">Extract from data</button><button data-s="mode" data-v="sim" class="${S.mode==='sim'?'on':''}">Simulate</button></div>
+ <div class="sh" style="margin-top:8px"><span class="chk">Taper in schematic</span><div class="seg sm"><button data-s="touch" data-v="on" class="${S.touch==='on'?'on':''}">Touching</button><button data-s="touch" data-v="off" class="${S.touch==='off'?'on':''}">Suspended</button><button data-s="anim" data-v="tg" class="${S.anim?'on':''}" title="Animation">▶</button></div></div></section>`;
+ h+=`<section><h2>Measurement, taper touching</h2>
+ <div class="fld"><label for="refT">Reference</label><select id="refT" data-sel="refType">${opt('p1',S.refType,'Point (1) · port 2')+opt('p0',S.refType,'Point (0) · port 1')+opt('laser',S.refType,'Laser output')+opt('mon',S.refType,'Monitor detector')}</select></div>
+ ${fld('refVal','Power at reference','dBm')}
+ ${fld('P2','Transmitted · point (2)','dBm')}
+ <div class="fld"><label for="refl">Reflection read at</label><select id="refl" data-sel="reflType">${opt('p3',S.reflType,'Point (3) · port 3')+opt('fast',S.reflType,'Fast detector (90 %)')+opt('slow',S.reflType,'Slow detector (10 %)')}</select></div>
+ ${fld('reflVal','Reflected power','dBm')}
+ <div class="fld"><label class="chk"><input type="checkbox" id="bgOn" ${S.bgOn?'checked':''}> Subtract background at (3)</label><span class="iw"><input type="number" step="0.01" data-p="bgVal" value="${S.bgVal}" ${S.bgOn?'':'disabled'} aria-label="Background at (3)"><i>dBm</i></span></div>
+ <div class="il" style="text-align:left">Background: power at (3) with the taper suspended (circulator directivity, connectors).</div>
+ ${fld('sigma','Uncertainty per reading σ','dB')}</section>`;
+ if(S.mode==='sim')h+=`<section><h2>Simulation</h2>
+ <div class="ctl"><div class="ctl-h"><label for="etaS">Coupling η</label><span id="etaSo"></span></div><input type="range" id="etaS" min="0" max="1" step="0.005" value="${S.etaS}"></div>
+ <div class="ctl"><div class="ctl-h"><label for="sS">Scattering s</label><span id="sSo"></span></div><input type="range" id="sS" min="0" max="1" step="0.005" value="${S.sS}"></div></section>`;
+ h+=`<section><h2>Waveguide + reflector</h2>
+ ${fld('Rm','Reflector loss','dB')}
+ ${fld('alpha','Propagation loss','dB/cm',0.1)}
+ ${fld('Lwg','Contact → reflector','mm',0.1)}
+ <div class="il" id="reffo"></div>
+ <div class="ctl"><div class="ctl-h"><label for="fsl">Fraction of taper loss before the contact</label><span id="fo"></span></div><input type="range" id="fsl" min="0" max="1" step="0.01" value="${S.f}"></div></section>`;
+ h+=`<section><h2 style="margin-bottom:2px">Component losses</h2><div class="il" style="text-align:left">dBm: measured input/output powers · dB: loss entered directly.</div></section>`;
+ for(const c of COMPS)h+=compHTML(c);
+ h+=`<section><div class="btns"><button id="bRst">Restore 2026-11-10 data</button><button id="bCsv">Export CSV</button><button id="bCp">Copy summary</button></div></section>`;
+ $('side').innerHTML=h;
+}
+$('side').addEventListener('input',e=>{const el=e.target;
+ if(el.dataset.p){const v=parseFloat(el.value);if(isFinite(v)){setP(S,el.dataset.p,v);update()}}
+ else if(el.id==='etaS'){S.etaS=+el.value;if(S.sS>1-S.etaS){S.sS=1-S.etaS;$('sS').value=S.sS}update()}
+ else if(el.id==='sS'){S.sS=Math.min(+el.value,1-S.etaS);el.value=S.sS;update()}
+ else if(el.id==='fsl'){S.f=+el.value;update()}});
+$('side').addEventListener('change',e=>{const el=e.target;
+ if(el.dataset.sel){S[el.dataset.sel]=el.value;update()}
+ if(el.id==='bgOn'){S.bgOn=el.checked;buildSide();update()}});
+$('side').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.cm){const st=S.comp[b.dataset.cm],c=COMPS.find(x=>x.id===b.dataset.cm),nm=b.dataset.v;if(st.mode!==nm){
+  if(nm==='loss')c.ports.forEach(([k])=>st.loss[k]=+(st.pw.in-st.pw[k]).toFixed(3));else c.ports.forEach(([k])=>st.pw[k]=+(st.pw.in-st.loss[k]).toFixed(3));st.mode=nm}buildSide();update()}
+ else if(b.dataset.s==='anim'){S.anim=!S.anim;buildSide();update()}
+ else if(b.dataset.s){if(b.dataset.s==='mode'&&b.dataset.v==='sim'&&S.mode!=='sim'){const C=core(S);if(isFinite(C.eta)&&C.eta>=0&&C.eta<=1){S.etaS=+C.eta.toFixed(3);S.sS=+Math.max(0,Math.min(C.s,1-C.eta)).toFixed(3)}}
+  S[b.dataset.s]=b.dataset.v;buildSide();update()}
+ else if(b.id==='bRst'){S=defaults();buildSide();update()}
+ else if(b.id==='bCsv')exportCSV();
+ else if(b.id==='bCp')copySummary(b)});
+
+// ---------- schematic ----------
+function buildSchem(){
+ const fl=(id,d,c)=>`<path id="${id}" class="flow ${c}" d="${d}"/>`;
+ const lab=(x,y,a,title,ids,cls)=>`<text x="${x}" y="${y}" text-anchor="${a}" class="lab sm">${title}${ids.map((id,i)=>`<tspan x="${x}" dy="15" id="${id}" class="labv ${cls&&cls[i]||''}"></tspan>`).join('')}</text>`;
+ const LOOP1='M560,90 C640,90 630,262 700,262',LOOP2='M700,262 C770,262 760,90 840,90';
+ $('sx').innerHTML=`<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="context-stroke"/></marker>
+ <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="var(--metal)"/><line x1="0" y1="0" x2="0" y2="4" stroke="var(--comp)" stroke-width="1.2"/></pattern></defs>
+ <text x="20" y="22" class="ttl">Setup</text>
+ <!-- fibers -->
+ <path class="fib" d="M100,90 H374"/><path class="fib" d="M150,104 V160"/><path class="fib" d="M426,90 H560"/>
+ <path class="fib" d="${LOOP1}"/><path class="fib" d="${LOOP2}"/><path class="fib" d="M840,90 H905"/>
+ <path class="fib" d="M400,116 V216"/><path class="fib" d="M414,230 H458"/><path class="fib" d="M400,244 V292"/>
+ <!-- chip -->
+ <rect x="600" y="266" width="290" height="50" rx="3" class="si"/>
+ <rect x="606" y="264" width="268" height="5" rx="1" style="fill:var(--silica)"/>
+ <rect x="872" y="258" width="10" height="58" fill="url(#hatch)" stroke="var(--text-muted)" stroke-width="1"/>
+ <text x="886" y="252" class="lab sm" text-anchor="middle">reflector</text>
+ <!-- flows -->
+ ${fl('fL','M100,90 H136','cf')}${fl('fA','M164,90 H298','cf')}${fl('f0','M298,90 H374','cf')}${fl('fM','M150,104 V160','cf')}
+ ${fl('f1','M426,90 H560','cf')}${fl('fC1',LOOP1,'cf')}${fl('fC2',LOOP2,'cf')}${fl('f2','M840,90 H905','cf')}
+ ${fl('fW','M712,286 H866','cw')}${fl('fWr','M866,300 H614','cr')}
+ ${fl('fB1','M700,262 C630,262 640,90 560,90','cr')}${fl('fB2','M560,90 H426','cr')}
+ ${fl('f3','M400,116 V216','cr')}${fl('fF','M414,230 H458','cr')}${fl('fS','M400,244 V292','cr')}
+ <g id="scat">${[-150,-125,-55,-30].map(a=>{const r=a*Math.PI/180;return `<line x1="${700+9*Math.cos(r)}" y1="${262+9*Math.sin(r)}" x2="${700+28*Math.cos(r)}" y2="${262+28*Math.sin(r)}" class="cs" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 4"/>`}).join('')}</g>
+ <!-- components -->
+ <rect x="20" y="70" width="80" height="40" rx="5" class="cmp"/><text x="60" y="95" class="lab" text-anchor="middle">Laser</text>
+ <rect x="136" y="76" width="28" height="28" class="cmp"/><line x1="136" y1="104" x2="164" y2="76" class="cmpl"/><text x="150" y="68" class="lab sm" text-anchor="middle">BS</text>
+ <path d="M140,160 h20 v6 a10,10 0 0 1 -20,0 z" class="pd"/>
+ ${[235,260,285].map(x=>`<ellipse cx="${x}" cy="90" rx="6" ry="17" class="cmp" style="fill-opacity:.85"/>`).join('')}<text x="260" y="126" class="lab sm" text-anchor="middle">pol. controller</text>
+ <circle cx="400" cy="90" r="26" class="cmp"/><path d="M386,98 A16,16 0 1 1 414,98" class="cmpl" marker-end="url(#ah)" style="stroke:var(--text-secondary)"/>
+ <text x="380" y="86" class="lab sm" text-anchor="middle">1</text><text x="420" y="86" class="lab sm" text-anchor="middle">2</text><text x="400" y="111" class="lab sm" text-anchor="middle">3</text>
+ <text x="432" y="128" class="lab sm">circulator</text>
+ <path d="M905,78 v24 h4 a12,12 0 0 0 0,-24 z" class="pd"/>
+ <rect x="386" y="216" width="28" height="28" class="cmp"/><line x1="386" y1="244" x2="414" y2="216" class="cmpl"/><text x="380" y="234" class="lab sm" text-anchor="end">BS 10/90</text>
+ <path d="M458,220 v20 h4 a10,10 0 0 0 0,-20 z" class="pd"/>
+ <path d="M390,292 h20 v4 a10,10 0 0 1 -20,0 z" class="pd"/>
+ <text x="620" y="292" class="lab sm inv">chip</text>
+ <!-- nodes -->
+ ${[[330,90,'0'],[480,90,'1'],[870,90,'2'],[400,180,'3']].map(([x,y,n])=>`<circle cx="${x}" cy="${y}" r="5" class="node"/>`).join('')}
+ <!-- labels -->
+ ${lab(20,128,'start','Laser',['tL'])}
+ ${lab(150,192,'middle','Monitor (BS)',['tM'])}
+ ${lab(325,36,'middle','(0) port 1',['t0'])}
+ ${lab(492,22,'middle','(1) port 2',['t1f','t1r'],['tf','tr'])}
+ ${lab(872,36,'middle','(2) transmission',['t2'])}
+ ${lab(612,150,'end','In fiber, before contact',['tC'])}
+ ${lab(800,170,'start','In fiber, after contact',['tCa'])}
+ ${lab(700,190,'middle','scattered',['tSc'],['ts'])}
+ ${lab(388,166,'end','(3) port 3',['t3'],['tr'])}
+ ${lab(446,258,'start','Fast det. 90 %',['tFa'])}
+ ${lab(418,300,'start','Slow det. 10 %',['tSl'])}
+ <text x="745" y="336" text-anchor="middle" class="lab sm">Waveguide: <tspan id="tW" class="labv tw"></tspan>  ·  back from reflector: <tspan id="tWr" class="labv tr"></tspan></text>
+ <text x="745" y="352" text-anchor="middle" class="lab sm">continues in waveguide past the contact: <tspan id="tWl" class="labv"></tspan></text>`;
+}
+const pv=p=>p>0?fd(dB(p))+' dBm · '+fP(p):'—';
+function setFlow(id,P){const e=$(id);if(!e)return;if(!(P>1e-15)){e.style.opacity=0;return}
+ const w=1.3+4.2*Math.min(1,Math.max(0,(dB(P)+65)/40));e.style.opacity=1;e.setAttribute('stroke-width',w.toFixed(2))}
+function drawSchem(N,touch){
+ $('sx').classList.toggle('paused',!S.anim);
+ const F={fL:N.PL,fA:N.Pa,f0:N.P0,fM:N.Pmon,f1:N.P1,fC1:N.Pc,fC2:N.Pthr,f2:N.P2,fW:N.Pwg,fWr:N.Pwr,fB1:N.Pback,fB2:N.Pb1,f3:N.P3,fF:N.Pfast,fS:N.Pslow};
+ for(const k in F)setFlow(k,F[k]);
+ $('scat').style.opacity=touch&&N.Psc1>0?1:0;
+ const T={tL:pv(N.PL),tM:pv(N.Pmon),t0:pv(N.P0),t1f:'→ '+pv(N.P1),t1r:'← '+pv(N.Pb1),t2:pv(N.P2),tC:pv(N.Pc),tCa:pv(N.Pthr),tSc:N.Psc1>0?fP(N.Psc1):'—',t3:pv(N.P3),tFa:pv(N.Pfast),tSl:pv(N.Pslow),tW:pv(N.Pwg),tWr:pv(N.Pwr),tWl:pv(N.Pwgl)};
+ for(const k in T)$(k).textContent=T[k];
+}
+
+// ---------- charts ----------
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function drawFate(eta,s){const v=[[eta,'var(--wg)','η'],[s,'var(--sc)','s'],[Math.max(0,1-eta-s),'var(--fwd)','1 − η − s']];
+ if(!v.every(a=>isFinite(a[0])&&a[0]>=0)){$('cF').innerHTML=`<text x="0" y="30" class="lab">No physical solution for the current values (see warning above).</text>`;return}
+ let x=0,h='';const W=1000,tot=v.reduce((a,b)=>a+b[0],0)||1;
+ v.forEach(([f,c,n],i)=>{const w=W*f/tot;if(w<=0)return;const gap=i<2?2:0;
+  h+=`<rect x="${x}" y="30" width="${Math.max(0,w-gap)}" height="26" rx="3" fill="${c}"><title>${n}: ${fPct(f)} (${fd(dB(f))} dB)</title></rect>`;
+  const tx=w>110?x+w/2:Math.min(x+2,W-100),an=w>110?'middle':'start';
+  h+=`<text x="${tx}" y="20" text-anchor="${an}" class="lab sm">${n} <tspan class="labv">${fPct(f)}</tspan> · ${fd(dB(f))} dB</text>`;x+=w});
+ $('cF').innerHTML=h}
+function drawWF(C,eta,s,N){
+ const t=C.t,ILa=-dB(t.Ta),ILb=-dB(t.Tb),IL23=-dB(t.c23);
+ if(!(eta>0)||!(1-eta-s>0)){$('cW').innerHTML=`<text x="0" y="30" class="lab">Budget unavailable: η or 1 − η − s outside the physical range.</text>`;return}
+ const P1=dB(N.P1),refl=[{k:'tot',l:'P(1)',v:P1},{k:'cal',l:'½ taper',d:-ILa},{k:'eta',l:'η',d:dB(eta)},{k:'cal',l:'wg+refl.',d:-C.ReffdB},{k:'eta',l:'η',d:dB(eta)},{k:'cal',l:'½ taper',d:-ILa},{k:'cal',l:'circ. 2→3',d:-IL23}];
+ if(C.Pbg>0)refl.push({k:'bg',l:'+ backgr.',d:dB(N.P3)-dB(N.P3sig)});
+ refl.push({k:'tot',l:'P(3)',v:dB(N.P3),m:dB(C.P3m)});
+ const tr=[{k:'tot',l:'P(1)',v:P1},{k:'cal',l:'½ taper',d:-ILa},{k:'ext',l:'contact',d:dB(1-eta-s)},{k:'cal',l:'½ taper',d:-ILb},{k:'tot',l:'P(2)',v:dB(N.P2),m:S.P2}];
+ const lv=[];for(const ch of [refl,tr]){let L=0;for(const it of ch){if(it.k==='tot'){L=it.v;lv.push(L);if(it.m!==undefined&&isFinite(it.m))lv.push(it.m)}else{L+=it.d;lv.push(L)}}}
+ const st=(Math.max(...lv)-Math.min(...lv))>24?5:2,ymax=Math.ceil((Math.max(...lv)+0.5)/st)*st,ymin=Math.floor((Math.min(...lv)-1)/st)*st;
+ const x0=64,x1=990,y0=30,y1=240,Y=v=>y0+(y1-y0)*(ymax-v)/(ymax-ymin);
+ const ncol=refl.length+tr.length+1,cw=(x1-x0)/ncol,bw=Math.min(46,cw*0.58);
+ const col={cal:'var(--cal)',eta:'var(--wg)',ext:'var(--fwd)',bg:'var(--sc)'};
+ let h='';for(let v=ymin;v<=ymax+1e-9;v+=st)h+=`<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${x0-8}" y="${Y(v)+4}" text-anchor="end" class="tick">${fd(v,0)}</text>`;
+ h+=`<text transform="translate(14,${(y0+y1)/2}) rotate(-90)" text-anchor="middle" class="tick">dBm</text>`;
+ const chain=(ch,c0,title)=>{let L=0,px=null;h+=`<text x="${x0+cw*(c0+ch.length/2)}" y="16" text-anchor="middle" class="lab" style="font-weight:600">${title}</text>`;
+  ch.forEach((it,i)=>{const cx=x0+cw*(c0+i+0.5);
+   if(it.k==='tot'){L=it.v;if(px!==null)h+=`<line x1="${px}" x2="${cx-bw/2}" y1="${Y(L)}" y2="${Y(L)}" class="ax" stroke-dasharray="2 3"/>`;
+    h+=`<line x1="${cx-bw/2}" x2="${cx+bw/2}" y1="${Y(L)}" y2="${Y(L)}" stroke="var(--text-primary)" stroke-width="3" stroke-linecap="round"><title>${it.l}: ${fd(L)} dBm</title></line><text x="${cx}" y="${Y(L)-8}" text-anchor="middle" class="labv sm">${fd(L)}</text>`;
+    if(it.m!==undefined&&isFinite(it.m)){const ym=Y(it.m);h+=`<path d="M${cx+bw/2+10},${ym-6} l6,6 l-6,6 l-6,-6 z" fill="none" stroke="var(--text-primary)" stroke-width="1.5"><title>measured: ${fd(it.m)} dBm</title></path>`}}
+   else{const a=L,b=L+it.d,yt=Y(Math.max(a,b)),yb=Y(Math.min(a,b));if(px!==null)h+=`<line x1="${px}" x2="${cx-bw/2}" y1="${Y(a)}" y2="${Y(a)}" class="ax" stroke-dasharray="2 3"/>`;
+    h+=`<rect x="${cx-bw/2}" y="${yt}" width="${bw}" height="${Math.max(1.5,yb-yt)}" rx="3" fill="${col[it.k]}"><title>${it.l}: ${it.d>0?'+':''}${fd(it.d)} dB</title></rect>`;
+    h+=`<text x="${cx}" y="${it.d<0?yb+13:yt-5}" text-anchor="middle" class="tick">${it.d>0?'+':''}${fd(it.d)}</text>`;L=b}
+   px=cx+bw/2;h+=`<text x="${cx}" y="${y1+20}" text-anchor="middle" class="tick">${esc(it.l)}</text>`});
+  h+=`<text x="${x0+cw*(c0+ch.length/2)}" y="${y1+44}" text-anchor="middle" class="lab sm">total ${fd(ch[ch.length-1].v-ch[0].v)} dB${ch[ch.length-1].m!==undefined?` · measured ${fd(ch[ch.length-1].m-ch[0].v)} dB`:''}</text>`};
+ chain(refl,0,'Reflection (1) → (3)');chain(tr,refl.length+1,'Transmission (1) → (2)');
+ h+=`<line x1="${x0+cw*(refl.length+0.5)}" x2="${x0+cw*(refl.length+0.5)}" y1="${y0}" y2="${y1+30}" class="gl"/>`;
+ $('cW').innerHTML=h}
+function drawSens(C){
+ const x0=64,x1=990,y0=14,y1=210,ymin=-0.2,ymax=1.0;
+ if(!(C.rho>0)||!isFinite(C.tau)){$('cS').innerHTML=`<text x="0" y="30" class="lab">No reflection signal above background.</text>`;return}
+ const xmax=Math.max(6,Math.ceil((isFinite(C.maxLoss)?C.maxLoss:0)+1.5),Math.ceil(C.ReffdB+1));
+ const X=v=>x0+(x1-x0)*v/xmax,Y=v=>y0+(y1-y0)*(ymax-v)/(ymax-ymin);
+ const et=L=>Math.sqrt(C.rho/g(L)),sv=L=>1-C.tau-et(L);
+ let h=`<defs><clipPath id="clS"><rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}"/></clipPath></defs>`;
+ if(isFinite(C.maxLoss)){const xs=Math.max(x0,X(Math.max(0,C.maxLoss)));h+=`<rect x="${xs}" y="${y0}" width="${Math.max(0,x1-xs)}" height="${y1-y0}" fill="var(--warn-bg)"/><text x="${Math.min(xs+8,x1-150)}" y="${y0+16}" class="lab sm">s &lt; 0 · inconsistent</text>`}
+ for(let v=-0.2;v<=1.0001;v+=0.2)h+=`<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" class="gl" ${Math.abs(v)<1e-9?'style="stroke:var(--text-muted)"':''}/><text x="${x0-8}" y="${Y(v)+4}" text-anchor="end" class="tick">${(v*100).toFixed(0)}%</text>`;
+ const st=xmax>10?2:1;for(let v=0;v<=xmax+1e-9;v+=st)h+=`<text x="${X(v)}" y="${y1+16}" text-anchor="middle" class="tick">${v}</text>`;
+ h+=`<text x="${(x0+x1)/2}" y="${y1+34}" text-anchor="middle" class="tick">Round-trip waveguide + reflector loss (dB)</text>`;
+ const path=f=>{let d='';for(let i=0;i<=200;i++){const L=xmax*i/200;d+=(i?'L':'M')+X(L).toFixed(1)+','+Y(f(L)).toFixed(1)}return d};
+ h+=`<g clip-path="url(#clS)"><path d="${path(()=>1-C.tau)}" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="6 4"/><path d="${path(et)}" fill="none" stroke="var(--wg)" stroke-width="2"/><path d="${path(sv)}" fill="none" stroke="var(--sc)" stroke-width="2"/></g>`;
+ const xc=X(C.ReffdB);h+=`<line x1="${xc}" x2="${xc}" y1="${y0}" y2="${y1}" stroke="var(--text-primary)" stroke-dasharray="2 3"/>`;
+ for(const [v,c,n] of [[C.eta,'var(--wg)','η'],[C.s,'var(--sc)','s']])if(isFinite(v)&&v>=ymin&&v<=ymax)h+=`<circle cx="${xc}" cy="${Y(v)}" r="5" fill="${c}" stroke="var(--bg)" stroke-width="2"><title>${n} = ${fPct(v)} @ ${fd(C.ReffdB)} dB</title></circle><text x="${xc+9}" y="${Y(v)-7}" class="labv sm">${n} ${fPct(v)}</text>`;
+ h+=`<text x="${x1-4}" y="${Y(1-C.tau)-6}" text-anchor="end" class="tick">η + s = ${fPct(1-C.tau)}</text>`;
+ $('cS').innerHTML=h}
+
+// ---------- table, cards ----------
+let ROWS=[],CUR=null;
+function buildRows(N,C){
+ const t=C.t,mP1=S.refType==='p1'?S.refVal:undefined,mP0=S.refType==='p0'?S.refVal:undefined,mL=S.refType==='laser'?S.refVal:undefined,mM=S.refType==='mon'?S.refVal:undefined;
+ ROWS=[['Laser','Laser output',N.PL,mL],['Monitor','BS, monitor output',N.Pmon,mM],['(0)','Circulator port 1',N.P0,mP0],['(1) →','Port 2 → taper',N.P1,mP1],
+ ['Contact','In fiber, arriving at contact',N.Pc],['Waveguide →','Coupled to waveguide (η)',N.Pwg],['Scattered →','Lost at contact, forward (s)',N.Psc1],['Fiber →','Stays in fiber after contact',N.Pthr],
+ ['(2)','Taper output (transmission)',N.P2,S.P2],['Reflector','In waveguide, back at contact',N.Pwr],['Fiber ←','Re-coupled to fiber (η)',N.Pback],['Scattered ←','Lost at contact, return (s)',N.Psc2],
+ ['Waveguide ←','Continues in waveguide past contact',N.Pwgl],['(1) ←','Port 2, return',N.Pb1],['(3)','Circulator port 3',N.P3,S.reflType==='p3'?S.reflVal:undefined],
+ ['Fast','90 % detector',N.Pfast,S.reflType==='fast'?S.reflVal:undefined],['Slow','10 % detector',N.Pslow,S.reflType==='slow'?S.reflVal:undefined]];
+}
+const card=(l,n,s,cls)=>`<div class="card ${cls||''}"><p class="l">${l}</p><p class="n">${n}</p><p class="s">${s||''}</p></div>`;
+function drawCards(C,N,eta,s,u){let h='';
+ if(S.mode==='ext'){
+  h+=card('Coupling η (per pass)',fPct(C.eta)+(u[0]>0?` <span class="s">± ${(100*u[0]).toFixed(1)}</span>`:''),fd(dB(C.eta))+' dB','key');
+  h+=card('Scattering at contact s',fPct(C.s)+(u[1]>0?` <span class="s">± ${(100*u[1]).toFixed(1)}</span>`:''),C.s>0?fd(dB(C.s))+' dB':'','key2');
+  h+=card('Stays in fiber, 1 − η − s',fPct(C.tau),'excess loss at contact '+fd(-dB(C.tau))+' dB');
+  h+=card('η² · R (reflection excess)',fd(dB(C.rho))+' dB',fPct(C.rho));
+  h+=card('Max. wg+reflector loss for s ≥ 0',isFinite(C.maxLoss)?fd(C.maxLoss)+' dB':'—','round trip; current '+fd(C.ReffdB)+' dB');
+ }else{
+  h+=card('η (simulated)',fPct(eta),fd(dB(eta))+' dB','key');h+=card('s (simulated)',fPct(s),s>0?fd(dB(s))+' dB':'','key2');
+  h+=card('Predicted P(2)',fd(dB(N.P2))+' dBm','measured '+fd(S.P2)+' · Δ '+fd(dB(N.P2)-S.P2)+' dB');
+  h+=card('Predicted P(3)',fd(dB(N.P3))+' dBm','measured '+fd(dB(C.P3m))+' · Δ '+fd(dB(N.P3)-dB(C.P3m))+' dB');
+ }
+ h+=card('P in fiber before contact',fd(dB(N.Pc))+' dBm',fP(N.Pc));
+ h+=card('P coupled to waveguide',N.Pwg>0?fd(dB(N.Pwg))+' dBm':'—',fP(N.Pwg));
+ h+=card('Fast / slow det. (predicted)',fd(dB(N.Pfast),1)+' / '+fd(dB(N.Pslow),1),'dBm');
+ $('cards').innerHTML=h}
+
+// ---------- export ----------
+function summary(){const C=CUR.C,u=CUR.u;const L=[];
+ L.push('Setup calibration: loop taper + waveguide with reflector');
+ for(const c of COMPS)c.ports.forEach(([k,lab])=>L.push(`${c.name} → ${lab}: ${IL(S,c.id,k).toFixed(2)} dB${c.est?' (not measured)':''}`));
+ L.push(`Waveguide+reflector (round trip): ${C.ReffdB.toFixed(2)} dB; fraction of taper loss before contact: ${S.f}`);
+ L.push(`P(1) = ${dB(C.P1).toFixed(2)} dBm; P(2) = ${S.P2.toFixed(2)} dBm; P(3) = ${dB(C.P3m).toFixed(2)} dBm${S.bgOn?`; background ${S.bgVal} dBm`:''}`);
+ L.push(`1−η−s = ${(100*C.tau).toFixed(1)} %; η²R = ${dB(C.rho).toFixed(2)} dB`);
+ L.push(`η = ${(100*C.eta).toFixed(1)} ± ${(100*u[0]).toFixed(1)} % (${dB(C.eta).toFixed(2)} dB per pass)`);
+ L.push(`s = ${(100*C.s).toFixed(1)} ± ${(100*u[1]).toFixed(1)} % (σ = ${S.sigma} dB per reading)`);
+ L.push(`Max. waveguide+reflector loss consistent with s ≥ 0: ${C.maxLoss.toFixed(2)} dB`);return L.join('\n')}
+function copySummary(b){const tx=summary();const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy summary',1200)};
+ try{navigator.clipboard.writeText(tx).then(done,()=>{prompt('Copy:',tx)})}catch(e){prompt('Copy:',tx)}}
+function exportCSV(){let csv='point;description;model_dBm;model_mW;measured_dBm\n';
+ for(const [a,b,p,m] of ROWS)csv+=`${a};${b};${p>0?dB(p).toFixed(3):''};${p>0?p.toExponential(4):''};${m!==undefined?m:''}\n`;
+ csv+='\n'+summary().split('\n').map(l=>'# '+l).join('\n')+'\n';
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download='setup_calibration_taper.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
+
+// ---------- update ----------
+function update(){
+ const C=core(S),u=unc(S);
+ let eta,s;if(S.mode==='ext'){eta=C.eta;s=C.s}else{eta=S.etaS;s=Math.min(S.sS,1-S.etaS)}
+ const ok=isFinite(eta)&&eta>=0&&isFinite(s);
+ const etaD=ok?Math.min(eta,1):0,sD=ok?Math.max(0,Math.min(s,1-etaD)):0;
+ const N=nodes(C,etaD,sD,S);
+ const Nd=S.touch==='on'?N:nodes(C,0,0,S);
+ drawSchem(Nd,S.touch==='on');
+ for(const c of COMPS){const st=S.comp[c.id];if(st.mode==='pw')c.ports.forEach(([k])=>{const e=$(`il_${c.id}_${k}`);if(e)e.textContent='loss: '+fd(st.pw.in-st.pw[k])+' dB'})}
+ if($('reffo'))$('reffo').textContent='Effective round-trip loss: '+fd(C.ReffdB)+' dB';
+ if($('fo'))$('fo').textContent=S.f.toFixed(2)+' → '+fd(-dB(C.t.Ta))+' / '+fd(-dB(C.t.Tb))+' dB';
+ if($('etaSo')){$('etaSo').textContent=fPct(S.etaS);$('sSo').textContent=fPct(Math.min(S.sS,1-S.etaS))}
+ const W=[];
+ if(!(C.rho>0))W.push('The measured reflection is not above the background: η cannot be extracted.');
+ else{if(C.tau>=1)W.push('Transmission with the taper touching is ≥ the suspended-taper value (1 − η − s ≥ 1): check P(2) and the taper loss.');
+  if(C.eta>1)W.push('η > 1: the reflection is too high for the assumed waveguide+reflector loss.');
+  else if(C.s<0)W.push(`s < 0: the reflection requires more coupling than the transmission drop allows. The round-trip waveguide+reflector loss must be ≤ ${fd(C.maxLoss)} dB, or something else contributes to P(3) (background, parasitic reflections).`)}
+ if(S.mode==='sim'&&S.sS>1-S.etaS+1e-9)W.push('s limited to 1 − η.');
+ $('warn').style.display=W.length?'block':'none';$('warn').innerHTML=W.join('<br>');
+ drawCards(C,N,etaD,sD,u);
+ drawFate(S.mode==='ext'?C.eta:etaD,S.mode==='ext'?C.s:sD);
+ drawWF(C,etaD,sD,N);drawSens(C);buildRows(N,C);
+ CUR={C,u};save()}
+buildSide();buildSchem();update();
+</script>
+</body>
+</html>

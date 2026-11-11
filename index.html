@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>photons — interactive photonics simulations</title>
-<meta name="description" content="Interactive, browser-based simulations for photonics teaching and research: optical cavities, coupled-mode theory, nonlinear bistability.">
+<meta name="description" content="Interactive, browser-based simulations for photonics teaching and research: optical cavities, coupled-mode theory, nonlinear bistability, setup loss calibration.">
 <style>
 :root{--bg:#0f1220;--ink:#e9ecf5;--muted:#9aa3b8;--card:#171b2e;--line:#262b45;--accent:#ff6b4a;--blue:#5c8dff}
 *{box-sizing:border-box}
@@ -73,6 +73,26 @@ footer a{color:#b7bfd3}
         <h2>Cavity optomechanics: transduction &amp; backaction</h2>
         <p>Linearized optomechanics read out on an ESA. Transduction vs detuning in the resolved and unresolved sideband regimes, thermal bistability during laser sweeps, converting PSD (dBm) to displacement, optical spring and damping vs power, sideband cooling and OMIT.</p>
         <div class="chips"><span class="chip">dynamical backaction</span><span class="chip">PSD calibration</span><span class="chip">OMIT</span></div>
+      </div>
+    </a>
+    <a class="card" href="taper-calibration/">
+      <div class="thumb">
+        <svg viewBox="0 0 320 170" aria-hidden="true">
+          <rect x="120" y="120" width="170" height="26" rx="2" fill="#262b45"/>
+          <rect x="278" y="112" width="7" height="34" fill="#ffb347"/>
+          <path d="M20,40 H90 C140,40 130,118 175,118 C220,118 210,40 260,40 H300" fill="none" stroke="#3a5a6e" stroke-width="7" stroke-linecap="round"/>
+          <path d="M20,40 H90 C140,40 130,118 175,118" fill="none" stroke="#ff6b4a" stroke-width="2.5" stroke-dasharray="6 7"/>
+          <path d="M175,118 C220,118 210,40 260,40 H300" fill="none" stroke="#ff6b4a" stroke-width="1.4" stroke-dasharray="6 7" opacity=".7"/>
+          <path d="M180,128 H272" stroke="#5c8dff" stroke-width="2.5" stroke-dasharray="6 6"/>
+          <path d="M272,138 H130" stroke="#c77dff" stroke-width="2" stroke-dasharray="6 6"/>
+          <path d="M175,112 l-10,-14 M175,112 l10,-14" stroke="#4fd1a5" stroke-width="1.5" stroke-dasharray="2 3"/>
+          <text x="20" y="28" fill="#9aa3b8" font-size="10" font-family="system-ui,sans-serif">η ≈ 51 %  ·  s ≈ 13 %</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h2>Loop taper on a waveguide: loss calibration</h2>
+        <p>Enter the measured powers or losses of each component (circulator, splitters, suspended taper) and extract the per-pass fiber ↔ waveguide coupling and the scattering at the contact from the transmission drop and the reflection from an on-chip reflector.</p>
+        <div class="chips"><span class="chip">loss budget</span><span class="chip">evanescent coupling</span><span class="chip">lab calibration</span></div>
       </div>
     </a>
     <div class="soon">More simulations coming soon.</div>
