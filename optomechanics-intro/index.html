@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Optomechanics in six steps — animated introduction</title>
+<style>
+:root{--bg:#0f1220;--ink:#e9ecf5;--muted:#9aa3b8;--card:#171b2e;--line:#262b45;--accent:#ff6b4a;--blue:#5c8dff;--amber:#ffb347;--green:#3ecf8e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;font-size:14.5px}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 20px 40px}
+a.back{font-size:12.5px;color:var(--muted);text-decoration:none}
+h1{font-size:26px;margin:4px 0 2px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 14px;font-size:13.5px}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.steps button{background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:20px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+.steps button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.lesson{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:12px 16px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.lesson h2{margin:0 0 4px;font-size:18px}
+.lesson p{margin:3px 0;color:#c9cfe0}
+.lesson .try{color:var(--amber)}
+.nav button,.ctl button{background:#222846;border:1px solid #3a4270;color:var(--ink);border-radius:8px;padding:7px 13px;font:inherit;cursor:pointer}
+.nav button:hover,.ctl button:hover{border-color:var(--blue)}
+.nav{display:flex;gap:6px}
+.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:12px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}.lesson{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.card h3{margin:0 0 2px;font-size:13.5px;font-weight:600}
+.card .cap{margin:0 0 6px;color:var(--muted);font-size:12px}
+canvas{display:block;width:100%;border-radius:6px;background:#0b0e1a}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:8px 18px;align-items:end;margin:12px 0}
+.ctl label{display:block;font-size:12.5px;color:var(--muted)}
+.ctl label b{color:var(--ink);font-weight:600}
+.ctl input[type=range]{width:100%;accent-color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tog{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink)}
+.status{font-size:13.5px;margin-top:6px;min-height:20px}
+.foot{color:var(--muted);font-size:12px;margin-top:14px}
+.foot a{color:#b7bfd3}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← photons · all simulations</a>
+  <h1>Optomechanics in six steps</h1>
+  <p class="sub">A laser, two mirrors, and one of the mirrors hangs on a spring. Everything below is a live simulation of that system.</p>
+
+  <div class="steps" id="steps"></div>
+  <div class="lesson">
+    <div><h2 id="lt"></h2><p id="lp"></p><p class="try" id="ltry"></p></div>
+    <div class="nav"><button id="prev">← Back</button><button id="next">Next →</button></div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><h3>The cavity</h3><p class="cap">The glow between the mirrors is the stored light. The right mirror is the mechanical oscillator.</p><canvas id="cCav" width="760" height="270"></canvas></div>
+    <div class="card"><h3>Laser and cavity resonance</h3><p class="cap">The peak moves when the mirror moves. Drag the laser line to change the detuning. Small bars: motional sidebands at ±Ω<sub>m</sub>.</p><canvas id="cRes" width="600" height="270"></canvas></div>
+    <div class="card"><h3>Oscilloscope</h3><p class="cap">White: mirror position. Amber: light on the detector.</p><canvas id="cScope" width="760" height="230"></canvas></div>
+    <div class="card"><h3>Who gives energy to whom?</h3><p class="cap">Left: light force vs mirror position over the last cycle. An open loop means the light does work (the message below averages over many cycles). Right: energy of the mirror motion.</p><canvas id="cLoop" width="600" height="230"></canvas><div class="status" id="status"></div></div>
+  </div>
+
+  <div class="ctl">
+    <div><label>Laser detuning Δ/κ: <b id="vD"></b></label><input type="range" id="sD" min="-3" max="3" step="0.01"></div>
+    <div><label>Laser power: <b id="vS"></b></label><input type="range" id="sS" min="0" max="0.6" step="0.01"></div>
+    <div><label>Mechanical frequency Ω<sub>m</sub>/κ: <b id="vR"></b></label><input type="range" id="sR" min="0.1" max="3" step="0.05"></div>
+    <div><label>Animation speed: <b id="vV"></b></label><input type="range" id="sV" min="0.25" max="8" step="0.25"></div>
+    <div class="row">
+      <label class="tog"><input type="checkbox" id="tBA"> light pushes the mirror</label>
+      <label class="tog"><input type="checkbox" id="tN"> thermal noise</label>
+      <label class="tog"><input type="checkbox" id="tL"> long time window</label>
+    </div>
+    <div class="row"><button id="kick">Kick the mirror</button><button id="pause">Pause</button><button id="reset">Restart step</button></div>
+  </div>
+  <p class="foot">Model: da/dt = [i(Δ + Gx) − κ/2]a + drive, and m(ẍ + Γ<sub>m</sub>ẋ + Ω<sub>m</sub>²x) = ħG|a|² + thermal force, integrated in real time (no linearization). Detector signal ∝ |a|². For the quantitative version, see the <a href="../optomechanics/">full simulator</a>.</p>
+</div>
+
+<script>
+// ---------- state (dimensionless: time in 1/Ω_m, x in cavity linewidths, |a|²=1 on resonance) ----------
+const P = { delta: -0.6, S: 0, r: 0.2, Q: 1e9, ba: false, noise: false, speed: 1, long: false };
+const TTH = 0.0064;                        // thermal variance of x (rms 0.08 linewidths)
+let s = [0, 0, 0, 0], t = 0, paused = false, Eavg = 0, xm = 0, nm = 0, cNV = 0, cNN = 1e-9, cVV = 1e-9;
+const HIST = 0.1, NH = 7000; let hist = [], acc = 0;
+
+function deriv(u) {
+  const k = 1 / P.r, d = P.delta + u[2];
+  return [k * (-d * u[1] - 0.5 * u[0] + 0.5), k * (d * u[0] - 0.5 * u[1]), u[3],
+          -u[2] - u[3] / P.Q + (P.ba ? P.S * (u[0] * u[0] + u[1] * u[1]) : 0)];
+}
+function gauss() { return Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(2 * Math.PI * Math.random()); }
+function step(dt) {
+  const k1 = deriv(s), k2 = deriv(s.map((u, j) => u + dt / 2 * k1[j])), k3 = deriv(s.map((u, j) => u + dt / 2 * k2[j])), k4 = deriv(s.map((u, j) => u + dt * k3[j]));
+  s = s.map((u, j) => u + dt / 6 * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j]));
+  if (P.noise && P.Q < 1e6) s[3] += Math.sqrt(2 * TTH * dt / P.Q) * gauss();
+  t += dt;
+  const a = dt / 40; xm += a * (s[2] - xm); Eavg += a * (0.5 * (s[3] * s[3] + (s[2] - xm) ** 2) - Eavg);
+  { const b = dt / 60, n = s[0] * s[0] + s[1] * s[1], dn = n - nm; nm += a * dn; cNV += b * (dn * s[3] - cNV); cNN += b * (dn * dn - cNN); cVV += b * (s[3] * s[3] - cVV); }
+  acc += dt; if (acc >= HIST) { acc = 0; hist.push([t, s[2], s[0] * s[0] + s[1] * s[1]]); if (hist.length > NH) hist.shift(); }
+}
+function settleOptics() { const d = P.delta + s[2], den = 0.25 + d * d; s[0] = 0.25 / den; s[1] = 0.5 * d / den; }
+function restart(x0) { s = [0, 0, x0, 0]; settleOptics(); hist = []; t = 0; nm = s[0] ** 2 + s[1] ** 2; cNV = 0; cNN = 1e-9; cVV = 1e-9; xm = P.ba ? P.S * (s[0] ** 2 + s[1] ** 2) : 0; Eavg = 0.5 * x0 * x0 / 2 + (P.noise ? TTH : 0); }
+
+// ---------- lesson ----------
+const STEPS = [
+  { tab: '1 · Mirror tunes the cavity', title: 'The mirror tunes the cavity',
+    text: 'Moving the mirror changes the cavity length, so the resonance frequency moves: ω<sub>c</sub>(x) = ω<sub>c</sub> − Gx. The laser frequency stays fixed. Light only gets in when the resonance is close to the laser.',
+    tryit: 'Watch the glow: it flashes each time the peak passes the laser line. Drag the laser line and see where the flashes happen.',
+    set: { delta: -0.6, S: 0, r: 0.2, Q: 1e9, ba: false, noise: false, long: false }, x0: 0.7 },
+  { tab: '2 · Reading the motion', title: 'Light reads the motion (transduction)',
+    text: 'For a small motion, the detector signal copies the mirror position if the laser sits on the <b>slope</b> of the resonance. The steeper the slope, the larger the signal. This is how a mechanical spectrum ends up on a spectrum analyzer.',
+    tryit: 'Set Δ = 0 (top of the peak): the signal almost vanishes and oscillates at twice the frequency. Then compare Δ = −0.3 and Δ = +0.3: same size, opposite sign.',
+    set: { delta: -0.29, S: 0, r: 0.2, Q: 1e9, ba: false, noise: false, long: false }, x0: 0.12 },
+  { tab: '3 · Light pushes back', title: 'Light pushes back, a little late',
+    text: 'Photons bouncing off the mirror push it (radiation pressure). The cavity needs a time ≈ 1/κ to fill or empty, so the force arrives <b>delayed</b> with respect to the motion. A delayed force does work: the force–position curve opens into a loop. With the laser on the red side (Δ &lt; 0) the light takes energy out, and the ring-down is much faster than with friction alone.',
+    tryit: 'Press “Kick the mirror” and time the ring-down. Uncheck “light pushes the mirror” and kick again. Then move the laser to the blue side (Δ = +0.4): the loop reverses direction.',
+    set: { delta: -0.4, S: 0.25, r: 0.2, Q: 60, ba: true, noise: false, long: false }, x0: 0.5 },
+  { tab: '4 · Cooling', title: 'Cooling the motion with light',
+    text: 'At room temperature the mirror never rests: the environment kicks it randomly (Brownian motion). The extra damping from red-detuned light removes this energy without adding much noise, so the motion shrinks. The mode behaves as if it were colder: T<sub>eff</sub> ≈ T · Γ<sub>m</sub>/(Γ<sub>m</sub> + Γ<sub>opt</sub>).',
+    tryit: 'Watch the energy bar fall below the thermal level. Switch “light pushes the mirror” off and on, or lower the laser power, and see the jitter come back.',
+    set: { delta: -0.4, S: 0.25, r: 0.2, Q: 60, ba: true, noise: true, long: true }, x0: 0 },
+  { tab: '5 · Self-oscillation', title: 'Blue side: amplification and self-oscillation',
+    text: 'On the blue side (Δ &gt; 0) the delayed force feeds energy into the motion. When this gain beats the mechanical friction, the smallest thermal jitter grows exponentially until the mirror swings across the whole resonance: a mechanical “laser” (optomechanical oscillator).',
+    tryit: 'Lower the laser power until the oscillation dies: that is the threshold. Notice the detector signal is no longer a sine wave.',
+    set: { delta: 0.4, S: 0.25, r: 0.2, Q: 60, ba: true, noise: true, long: true }, x0: 0 },
+  { tab: '6 · Resolved sidebands', title: 'Fast mirror, narrow cavity: resolved sidebands',
+    text: 'Now the mirror oscillates faster than the cavity can respond (Ω<sub>m</sub> &gt; κ). The motion writes two sidebands on the laser, at ±Ω<sub>m</sub>. The upper one carries energy <i>taken from</i> the mirror; the lower one energy <i>given to</i> it. Placing the laser at Δ = −Ω<sub>m</sub> puts the upper sideband on the cavity peak and the lower one far away: cooling with almost no heating. This is the route to the quantum ground state.',
+    tryit: 'Compare the sideband bars and the energy at Δ = −2 with Δ = −0.5. Then try Δ = +2.',
+    set: { delta: -2, S: 0.5, r: 2, Q: 60, ba: true, noise: true, long: true }, x0: 0 },
+];
+let cur = 0;
+function loadStep(i) {
+  cur = i; const st = STEPS[i]; Object.assign(P, st.set);
+  document.getElementById('lt').innerHTML = st.title; document.getElementById('lp').innerHTML = st.text; document.getElementById('ltry').innerHTML = '▶ Try: ' + st.tryit;
+  document.querySelectorAll('#steps button').forEach((b, j) => b.classList.toggle('on', j === i));
+  document.getElementById('prev').disabled = i === 0; document.getElementById('next').disabled = i === STEPS.length - 1;
+  syncUI(); restart(st.x0);
+}
+const $ = id => document.getElementById(id);
+function syncUI() {
+  $('sD').value = P.delta; $('sS').value = P.S; $('sR').value = P.r; $('sV').value = P.speed;
+  $('tBA').checked = P.ba; $('tN').checked = P.noise; $('tL').checked = P.long;
+  $('vD').textContent = (P.delta > 0 ? '+' : '') + P.delta.toFixed(2) + (P.delta < -0.02 ? ' (red side)' : P.delta > 0.02 ? ' (blue side)' : ' (on resonance)');
+  $('vS').textContent = P.S.toFixed(2); $('vR').textContent = P.r.toFixed(2) + (P.r > 1 ? ' (resolved)' : P.r < 0.4 ? ' (unresolved)' : ''); $('vV').textContent = P.speed + '×';
+}
+function initUI() {
+  $('steps').innerHTML = STEPS.map((st, i) => `<button data-i="${i}">${st.tab}</button>`).join('');
+  document.querySelectorAll('#steps button').forEach(b => b.onclick = () => loadStep(+b.dataset.i));
+  $('prev').onclick = () => loadStep(Math.max(0, cur - 1)); $('next').onclick = () => loadStep(Math.min(STEPS.length - 1, cur + 1));
+  $('sD').oninput = e => { P.delta = +e.target.value; syncUI(); };
+  $('sS').oninput = e => { P.S = +e.target.value; if (P.S > 0 && !P.ba) P.ba = true; syncUI(); };
+  $('sR').oninput = e => { P.r = +e.target.value; syncUI(); };
+  $('sV').oninput = e => { P.speed = +e.target.value; syncUI(); };
+  $('tBA').onchange = e => { P.ba = e.target.checked; if (P.ba && P.S === 0) P.S = 0.25; if (P.Q > 1e6) P.Q = 60; syncUI(); };
+  $('tN').onchange = e => { P.noise = e.target.checked; if (P.Q > 1e6) P.Q = 60; };
+  $('tL').onchange = e => { P.long = e.target.checked; };
+  $('kick').onclick = () => { s[3] += 0.5; };
+  $('pause').onclick = e => { paused = !paused; e.target.textContent = paused ? 'Resume' : 'Pause'; };
+  $('reset').onclick = () => loadStep(cur);
+  // drag the laser line
+  const c = $('cRes'); let drag = false;
+  const setD = ev => { const r = c.getBoundingClientRect(); const f = (ev.clientX - r.left) / r.width; P.delta = Math.max(-3, Math.min(3, Math.round((f * 8 - 4) * 100) / 100)); syncUI(); };
+  c.addEventListener('pointerdown', ev => { drag = true; c.setPointerCapture(ev.pointerId); setD(ev); });
+  c.addEventListener('pointermove', ev => { if (drag) setD(ev); });
+  c.addEventListener('pointerup', () => drag = false);
+  c.style.cursor = 'ew-resize'; c.style.touchAction = 'none';
+}
+
+// ---------- drawing ----------
+const INK = '#e9ecf5', MUTED = '#9aa3b8', LINE = '#2c3252', AMBER = '#ffb347';
+function laserRGB() { const u = Math.max(-1, Math.min(1, P.delta / 0.4)); const w = [240, 240, 245], rd = [255, 90, 74], bl = [92, 141, 255]; const c = u < 0 ? rd : bl, a = Math.abs(u); return w.map((v, i) => Math.round(v + (c[i] - v) * a)); }
+const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+function txt(g, s, x, y, col = MUTED, size = 12, align = 'left') { g.fillStyle = col; g.font = size + 'px system-ui,sans-serif'; g.textAlign = align; g.fillText(s, x, y); }
+
+function drawCavity() {
+  const c = $('cCav'), g = c.getContext('2d'), W = c.width, H = c.height; g.clearRect(0, 0, W, H);
+  const n = s[0] * s[0] + s[1] * s[1], col = laserRGB(), yb = 105, xl = 190, xr = 470 + 60 * Math.max(-2.2, Math.min(2.2, s[2])), wall = 690;
+  // laser box and input beam
+  g.fillStyle = '#222846'; g.fillRect(20, yb - 26, 80, 52); txt(g, 'LASER', 60, yb + 4, INK, 13, 'center');
+  g.fillStyle = rgba(col, 0.75); g.fillRect(100, yb - 5, xl - 100, 10);
+  // intracavity light
+  const gl = Math.min(1, n); g.fillStyle = rgba(col, 0.08 + 0.85 * gl); g.fillRect(xl + 8, yb - 34, xr - xl - 8, 68);
+  g.shadowColor = rgba(col, gl); g.shadowBlur = 40 * gl; g.fillStyle = rgba(col, 0.25 * gl); g.fillRect(xl + 8, yb - 34, xr - xl - 8, 68); g.shadowBlur = 0;
+  // transmitted beam + detector
+  g.fillStyle = rgba(col, 0.1 + 0.8 * gl); g.fillRect(xr + 10, yb - 4, wall - 40 - xr - 10, 8);
+  g.fillStyle = '#222846'; g.fillRect(wall - 40, yb - 22, 28, 44); g.fillStyle = rgba([255, 179, 71], 0.2 + 0.8 * gl); g.beginPath(); g.arc(wall - 26, yb, 8, 0, 7); g.fill();
+  txt(g, 'detector', wall - 26, yb - 30, MUTED, 11.5, 'center');
+  // mirrors
+  g.fillStyle = '#aab3cf'; g.fillRect(xl, 50, 8, 150); g.fillStyle = '#dfe5f7'; g.fillRect(xr, 50, 10, 150);
+  txt(g, 'fixed mirror', xl + 4, 40, MUTED, 11.5, 'center'); txt(g, 'mirror on a spring', xr + 5, 40, INK, 11.5, 'center');
+  // spring + wall
+  g.strokeStyle = '#8f98b5'; g.lineWidth = 2; g.beginPath(); const x0 = xr + 10, x1 = wall, ys = 170, N = 14; g.moveTo(x0, ys);
+  for (let i = 1; i < N; i++) g.lineTo(x0 + (x1 - x0) * i / N, ys + (i % 2 ? -11 : 11)); g.lineTo(x1, ys); g.stroke();
+  g.fillStyle = '#3a4270'; g.fillRect(wall, 40, 10, 170);
+  // radiation pressure arrow
+  if (P.ba && P.S > 0) { const L = 70 * Math.min(1.2, n) * Math.min(1, P.S / 0.25); if (L > 3) { g.strokeStyle = AMBER; g.fillStyle = AMBER; g.lineWidth = 3; g.beginPath(); g.moveTo(xr - 6 - L, 215); g.lineTo(xr - 6, 215); g.stroke(); g.beginPath(); g.moveTo(xr, 215); g.lineTo(xr - 10, 209); g.lineTo(xr - 10, 221); g.fill(); } txt(g, 'radiation-pressure force', xl + 10, 245, AMBER, 11.5); }
+  // position ruler
+  g.strokeStyle = LINE; g.lineWidth = 1; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(470 + 5, 205); g.lineTo(470 + 5, 255); g.stroke(); g.setLineDash([]);
+  txt(g, 'x = 0', 475, 266, MUTED, 11, 'center');
+}
+
+function drawRes() {
+  const c = $('cRes'), g = c.getContext('2d'), W = c.width, H = c.height; g.clearRect(0, 0, W, H);
+  const X = f => (f + 4) / 8 * W, y0 = H - 42, Y = v => y0 - v * (y0 - 30), col = laserRGB(), cen = -s[2];
+  g.strokeStyle = LINE; g.beginPath(); g.moveTo(0, y0); g.lineTo(W, y0); g.stroke();
+  txt(g, '← lower frequency (red)', 8, H - 10, '#ff8a7a', 11.5); txt(g, 'higher frequency (blue) →', W - 8, H - 10, '#8fb0ff', 11.5, 'right');
+  // bare resonance marker
+  g.setLineDash([3, 4]); g.strokeStyle = LINE; g.beginPath(); g.moveTo(X(0), 24); g.lineTo(X(0), y0); g.stroke(); g.setLineDash([]);
+  // lorentzian (moves with mirror)
+  g.beginPath(); for (let i = 0; i <= 300; i++) { const f = -4 + 8 * i / 300, v = 0.25 / (0.25 + (f - cen) ** 2); i ? g.lineTo(X(f), Y(v)) : g.moveTo(X(f), Y(v)); }
+  g.strokeStyle = INK; g.lineWidth = 2; g.stroke();
+  g.lineTo(W, y0); g.lineTo(0, y0); g.fillStyle = 'rgba(233,236,245,0.06)'; g.fill();
+  txt(g, 'cavity resonance', Math.max(60, Math.min(W - 60, X(cen))), 20, INK, 11.5, 'center');
+  // sidebands (heights = cavity response there, for the mean mirror position)
+  [[1, 'takes energy (+Ωm)', '#3ecf8e'], [-1, 'gives energy (−Ωm)', '#ff6b4a']].forEach(([sg, lab, cl]) => {
+    const f = P.delta + sg * P.r; if (Math.abs(f) > 4) return; const v = 0.25 / (0.25 + (f + xm) ** 2);
+    g.fillStyle = cl; g.fillRect(X(f) - 3, y0 - Math.max(2, v * 60), 6, Math.max(2, v * 60));
+    if (P.r >= 0.6) txt(g, lab, Math.max(62, Math.min(W - 62, X(f))), y0 + 14, cl, 10.5, 'center');
+  });
+  // laser line
+  g.strokeStyle = rgba(col, 1); g.lineWidth = 3; g.beginPath(); g.moveTo(X(P.delta), 34); g.lineTo(X(P.delta), y0); g.stroke();
+  txt(g, 'laser', X(P.delta), 46, rgba(col, 1), 12, P.delta > 2.6 ? 'right' : 'left');
+  // light in the cavity now (lags behind the curve when the cavity is slow)
+  const n = s[0] * s[0] + s[1] * s[1]; g.fillStyle = AMBER; g.beginPath(); g.arc(X(P.delta), Y(n), 7, 0, 7); g.fill(); g.strokeStyle = '#0b0e1a'; g.lineWidth = 2; g.stroke();
+  txt(g, 'light in the cavity', X(P.delta) + (P.delta > 1 ? -12 : 12), Y(n) + 4, AMBER, 11.5, P.delta > 1 ? 'right' : 'left');
+}
+
+function drawScope() {
+  const c = $('cScope'), g = c.getContext('2d'), W = c.width, H = c.height; g.clearRect(0, 0, W, H);
+  const Tw = P.long ? 600 : 60, t0 = t - Tw, h = hist.filter(p => p[0] >= t0); if (h.length < 2) return;
+  let ax = 0.1, an0 = 1e9, an1 = 0; h.forEach(p => { ax = Math.max(ax, Math.abs(p[1] - xm)); an0 = Math.min(an0, p[2]); an1 = Math.max(an1, p[2]); });
+  ax *= 1.15; const X = tt => (tt - t0) / Tw * W, mid1 = H * 0.27, mid2 = H * 0.75, amp = H * 0.2;
+  g.strokeStyle = LINE; g.lineWidth = 1; [mid1, H / 2 + 4].forEach(y => { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); });
+  g.beginPath(); h.forEach((p, i) => { const y = mid1 - (p[1] - xm) / ax * amp; i ? g.lineTo(X(p[0]), y) : g.moveTo(X(p[0]), y); }); g.strokeStyle = INK; g.lineWidth = 1.6; g.stroke();
+  const span = Math.max(an1 - an0, 0.02), nm = (an0 + an1) / 2;
+  g.beginPath(); h.forEach((p, i) => { const y = mid2 - (p[2] - nm) / span * 2 * amp * 0.9; i ? g.lineTo(X(p[0]), y) : g.moveTo(X(p[0]), y); }); g.strokeStyle = AMBER; g.lineWidth = 1.6; g.stroke();
+  txt(g, 'mirror position x(t)   (full scale ±' + ax.toFixed(2) + ' linewidths)', 8, 15, INK, 11.5);
+  txt(g, 'detected light   (modulation depth ' + (100 * (an1 - an0)).toFixed(1) + '% of the on-resonance power)', 8, H / 2 + 20, AMBER, 11.5);
+  txt(g, 'time →  (' + (Tw / 6.283).toFixed(0) + ' mechanical periods shown)', W - 8, H - 6, MUTED, 11, 'right');
+}
+
+function drawLoop() {
+  const c = $('cLoop'), g = c.getContext('2d'), W = c.width, H = c.height; g.clearRect(0, 0, W, H);
+  // ---- F vs x loop (last cycle), work averaged over last 4 cycles ----
+  const per = 6.2832, h1 = hist.filter(p => p[0] >= t - per * 1.02), h4 = hist.filter(p => p[0] >= t - 4 * per);
+  const L = 30, R = 330, T = 22, B = H - 34;
+  g.strokeStyle = LINE; g.strokeRect(L, T, R - L, B - T); txt(g, 'mirror position →', (L + R) / 2, H - 12, MUTED, 11.5, 'center');
+  g.save(); g.translate(14, (T + B) / 2); g.rotate(-Math.PI / 2); txt(g, 'light force →', 0, 0, MUTED, 11.5, 'center'); g.restore();
+  let work = 0, norm = 1e-9;
+  for (let i = 1; i < h4.length; i++) { work += 0.5 * (h4[i][2] + h4[i - 1][2]) * (h4[i][1] - h4[i - 1][1]); }
+  if (h1.length > 3) {
+    let x0 = 1e9, x1 = -1e9, n0 = 1e9, n1 = -1e9; h1.forEach(p => { x0 = Math.min(x0, p[1]); x1 = Math.max(x1, p[1]); n0 = Math.min(n0, p[2]); n1 = Math.max(n1, p[2]); });
+    norm = Math.max((x1 - x0) * (n1 - n0) * 4, 1e-9);
+    const px = (x1 - x0) * 0.12 + 0.01, pn = (n1 - n0) * 0.12 + 0.005; x0 -= px; x1 += px; n0 -= pn; n1 += pn;
+    const X = v => L + (v - x0) / (x1 - x0) * (R - L), Y = v => B - (v - n0) / (n1 - n0) * (B - T);
+    const rel = cNV / Math.sqrt(cNN * cVV), colr = !P.ba || Math.abs(rel) < 0.02 ? MUTED : rel > 0 ? '#ff6b4a' : '#5c8dff';
+    g.beginPath(); h1.forEach((p, i) => i ? g.lineTo(X(p[1]), Y(p[2])) : g.moveTo(X(p[1]), Y(p[2]))); g.strokeStyle = colr; g.lineWidth = 2; g.stroke();
+    g.closePath(); g.globalAlpha = 0.15; g.fillStyle = colr; g.fill(); g.globalAlpha = 1;
+    const a = h1[h1.length - 1], b = h1[h1.length - 3], ang = Math.atan2(Y(a[2]) - Y(b[2]), X(a[1]) - X(b[1]));
+    g.save(); g.translate(X(a[1]), Y(a[2])); g.rotate(ang); g.fillStyle = INK; g.beginPath(); g.moveTo(8, 0); g.lineTo(-6, -6); g.lineTo(-6, 6); g.fill(); g.restore();
+    const st = $('status');
+    if (!P.ba || P.S === 0) st.innerHTML = '<span style="color:#9aa3b8">Light is only watching: the force on the mirror is switched off.</span>';
+    else if (Math.abs(rel) < 0.02) st.innerHTML = '<span style="color:#9aa3b8">No net work per cycle: the loop is closed.</span>';
+    else if (rel > 0) st.innerHTML = '<span style="color:#ff6b4a">Clockwise loop: light <b>gives</b> energy to the mirror (amplification).</span>';
+    else st.innerHTML = '<span style="color:#5c8dff">Counter-clockwise loop: light <b>takes</b> energy from the mirror (cooling / extra damping).</span>';
+  }
+  // ---- energy bar (log scale, relative to thermal energy at T_bath) ----
+  const bx = 400, bw = 46, lo = -2, hi = 3, ratio = Math.max(Eavg / TTH, 1e-3), Yl = v => B - (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * (B - T);
+  g.fillStyle = '#0f1326'; g.fillRect(bx, T, bw, B - T); g.strokeStyle = LINE; g.strokeRect(bx, T, bw, B - T);
+  const lr = Math.log10(ratio); g.fillStyle = lr > 0.15 ? '#ff6b4a' : lr < -0.15 ? '#5c8dff' : '#aab3cf'; g.fillRect(bx, Yl(lr), bw, B - Yl(lr));
+  for (let d = lo; d <= hi; d++) { g.strokeStyle = LINE; g.beginPath(); g.moveTo(bx + bw, Yl(d)); g.lineTo(bx + bw + 6, Yl(d)); g.stroke(); txt(g, d === 0 ? 'thermal (T bath)' : '×' + (d < 0 ? '1/' + 10 ** -d : 10 ** d), bx + bw + 10, Yl(d) + 4, d === 0 ? INK : MUTED, 11); }
+  g.strokeStyle = INK; g.setLineDash([4, 3]); g.beginPath(); g.moveTo(bx - 6, Yl(0)); g.lineTo(bx + bw, Yl(0)); g.stroke(); g.setLineDash([]);
+  txt(g, 'motion energy', bx + bw / 2, H - 12, MUTED, 11.5, 'center');
+  txt(g, ratio >= 100 ? ratio.toFixed(0) + '×' : ratio.toFixed(2) + '×', bx + bw / 2, T - 6, INK, 12.5, 'center');
+}
+
+// ---------- loop ----------
+function frame() {
+  if (!paused) { const adv = 0.15 * P.speed, n = Math.max(1, Math.ceil(adv / Math.min(0.02, 0.1 * P.r))); for (let i = 0; i < n; i++) step(adv / n); }
+  drawCavity(); drawRes(); drawScope(); drawLoop();
+  requestAnimationFrame(frame);
+}
+initUI(); loadStep(0); requestAnimationFrame(frame);
+</script>
+</body>
+</html>
