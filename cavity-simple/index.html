@@ -3,58 +3,61 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Optical cavity: thermal bistability (simple)</title>
+<title>Optical cavity: thermal bistability (16:9 slide)</title>
 <style>
 :root{--bg:#f5f6f8;--card:#fff;--ink:#1d2433;--muted:#667085;--line:#e3e6eb;--red:#d9480f;--blue:#1971c2;--beam:#e03131;--accent:#f08c00;--stable:#1d2433;--unstable:#9c36b5;--teal:#0b7285}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
-header{padding:12px 18px;border-bottom:1px solid var(--line);background:#fff}
-header h1{font-size:18px;margin:0;font-weight:650}
-header p{margin:3px 0 0;color:var(--muted);font-size:13px}
-.back{font-size:12px;color:#364fc7;text-decoration:none;display:inline-block;margin-bottom:4px}
-.back:hover{text-decoration:underline}
-.wrap{display:grid;grid-template-columns:290px minmax(0,1fr);gap:12px;padding:12px}
-@media (max-width:950px){.wrap{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
-aside.card{align-self:start;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
-aside h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 6px;font-weight:650}
+html,body{margin:0;height:100%;overflow:hidden;background:#f5f6f8}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);font-size:15px}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;background:var(--bg);display:flex;flex-direction:column}
+header{height:62px;padding:10px 18px 0;display:flex;align-items:baseline;gap:18px;flex:none}
+header h1{font-size:24px;margin:0;font-weight:700;white-space:nowrap}
+header p{margin:0;color:var(--muted);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+header nav{font-size:13px;white-space:nowrap}
+header nav a{color:#364fc7;text-decoration:none}
+header nav a:hover{text-decoration:underline}
+.wrap{flex:1;min-height:0;display:grid;grid-template-columns:290px 1fr;gap:12px;padding:0 12px 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:0;display:flex;flex-direction:column}
+aside.card{display:block;padding:8px 14px}
+aside h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:10px 0 4px;font-weight:700}
 aside section:first-child h3{margin-top:2px}
-.row{display:flex;justify-content:space-between;align-items:baseline;margin-top:7px}
-.row label{font-size:13px}
-.row output{font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--muted)}
-input[type=range]{width:100%;margin:2px 0 0;accent-color:#364fc7}
-.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-top:6px}
+.row{display:flex;justify-content:space-between;align-items:baseline;margin-top:5px}
+.row label{font-size:14.5px}
+.row output{font-variant-numeric:tabular-nums;font-size:14px;color:var(--muted)}
+input[type=range]{width:100%;margin:1px 0 0;accent-color:#364fc7;height:20px}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-top:5px}
 .seg label{flex:1;text-align:center;cursor:pointer}
 .seg input{display:none}
-.seg span{display:block;padding:6px 4px;font-size:13px}
+.seg span{display:block;padding:6px 3px;font-size:14.5px}
 .seg input:checked+span{background:#364fc7;color:#fff}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
-button{font:inherit;font-size:13px;padding:7px 6px;border:1px solid #c5cbd5;border-radius:7px;background:#fff;cursor:pointer}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px}
+button{font:inherit;font-size:14.5px;padding:7px 6px;border:1px solid #c5cbd5;border-radius:7px;background:#fff;cursor:pointer}
 button:hover{background:#f1f3f5}
 button.primary{background:#364fc7;color:#fff;border-color:#364fc7;grid-column:span 2;font-weight:600}
-button.primary:hover{background:#2f44ad}
-.chk{display:flex;gap:6px;align-items:center;margin-top:7px;font-size:13px}
-select{width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:#fff;font:inherit;margin-top:3px}
-.note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.35}
-main{display:grid;gap:12px;min-width:0}
-.card h2{font-size:14px;margin:0 0 6px;font-weight:650}
-svg#diag{width:100%;max-height:330px;display:block}
-canvas{width:100%;display:block}
-#cvSpec{height:150px} #cvOut{height:330px}
-.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);margin:0 0 4px}
-.legend i{display:inline-block;width:18px;height:0;border-top:2px solid;vertical-align:middle;margin-right:4px}
+.chk{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:14px}
+select{padding:3px 4px;border:1px solid var(--line);border-radius:6px;background:#fff;font:inherit;font-size:14px}
+.inl{display:flex;gap:8px;align-items:center;margin-top:7px;font-size:14px;justify-content:space-between}
+.note{font-size:13.5px;color:var(--muted);margin-top:5px;line-height:1.3}
+main{display:grid;grid-template-rows:320px 1fr;gap:12px;min-height:0;min-width:0}
+.toprow{display:grid;grid-template-columns:700px 1fr;gap:12px;min-height:0}
+.card h2{font-size:16px;margin:0 0 4px;font-weight:650;flex:none}
+svg#diag{width:100%;flex:1;min-height:0;display:block}
+.plotbox{flex:1;min-height:0;position:relative}
+.plotbox canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:3px 16px;font-size:14px;color:var(--muted);margin:0 0 4px;flex:none}
+.legend i{display:inline-block;width:20px;height:0;border-top:2.5px solid;vertical-align:middle;margin-right:5px}
 .legend i.dash{border-top-style:dashed}
 .legend i.dot{border-top-style:dotted}
-.legend i.pt{width:9px;height:9px;border:2px solid #fff;border-radius:50%;background:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.legend i.pt{width:10px;height:10px;border:2px solid #fff;border-radius:50%;background:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 </style>
 </head>
 <body>
+<div id="stage">
 <header>
-  <a class="back" href="../">← photons · all simulations</a> &nbsp;·&nbsp; <a class="back" href="../cavity/">full version →</a>
-  <h1>Optical cavity driven by a laser: thermal (and free-carrier) bistability</h1>
-  <p>As the laser approaches the resonance, light builds up in the cavity, heats it, and shifts its resonance. Sweep the laser and watch the cavity run away from it.</p>
+  <h1>Optical cavity driven by a laser: thermal bistability</h1>
+  <p>The intracavity light heats the cavity and shifts its resonance away from the laser.</p>
+  <nav><a href="../">← all simulations</a> · <a href="../cavity/">full version</a></nav>
 </header>
-
 <div class="wrap">
 <aside class="card">
   <section>
@@ -77,7 +80,6 @@ canvas{width:100%;display:block}
       <input type="range" id="ke2" class="param" min="0.1" max="2" step="0.01" value="0.5">
     </div>
   </section>
-
   <section>
     <h3>Laser &amp; nonlinearity</h3>
     <div class="row"><label for="P">Laser power |α<sub>in</sub>|²</label><output id="P_v"></output></div>
@@ -89,7 +91,6 @@ canvas{width:100%;display:block}
     </div>
     <div class="note" id="nlNote"></div>
   </section>
-
   <section>
     <h3>Laser sweep</h3>
     <div class="btns">
@@ -99,34 +100,40 @@ canvas{width:100%;display:block}
       <button id="bPause">Pause</button>
       <button id="bClear">Clear traces</button>
     </div>
-    <div class="row"><label for="laser">Laser detuning Δ (drag)</label><output id="laser_v"></output></div>
+    <div class="row"><label for="laser">Laser detuning Δ</label><output id="laser_v"></output></div>
     <input type="range" id="laser" min="-10" max="10" step="0.01" value="10">
-    <div class="row"><label for="secs">Speed: seconds per sweep</label><output id="secs_v"></output></div>
+    <div class="row"><label for="secs">Speed (s per sweep)</label><output id="secs_v"></output></div>
     <input type="range" id="secs" class="param" min="3" max="30" step="1" value="10">
-    <div class="row"><label for="xr">Detuning axis (fixed)</label></div>
-    <select id="xr" class="param"><option value="5">−5 … +5</option><option value="10" selected>−10 … +10</option><option value="20">−20 … +20</option></select>
-    <div class="chk"><input type="checkbox" id="flip" class="param"><label for="flip">Wavelength axis (red on the right)</label></div>
+    <div class="inl"><label for="xr">Axis</label><select id="xr" class="param"><option value="5">±5</option><option value="10" selected>±10</option><option value="20">±20</option></select>
+      <span class="chk" style="margin:0"><input type="checkbox" id="flip" class="param"><label for="flip">λ-like</label></span></div>
+    <div class="chk"><input type="checkbox" id="loopc"><label for="loopc">Repeat cycle continuously</label></div>
+    <div class="note" style="margin-top:10px">Keys: <b>C</b> full cycle · <b>Space</b> pause · <b>R</b> clear traces</div>
   </section>
 </aside>
 
 <main>
-  <div class="card">
-    <h2 id="diagTitle">Cavity</h2>
-    <svg id="diag" viewBox="0 0 680 260"></svg>
-    <div class="legend" style="margin-top:6px">
-      <span><i class="dot" style="border-color:#868e96"></i>cold cavity</span>
-      <span><i style="border-color:var(--accent)"></i>cavity now (heated)</span>
-      <span><i style="border-color:var(--beam)"></i>laser</span>
+  <div class="toprow">
+    <div class="card">
+      <h2 id="diagTitle">Cavity</h2>
+      <svg id="diag" viewBox="0 0 680 260" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
-    <canvas id="cvSpec"></canvas>
+    <div class="card">
+      <h2>Cavity spectrum: cold vs. now</h2>
+      <div class="legend">
+        <span><i class="dot" style="border-color:#868e96"></i>cold cavity</span>
+        <span><i style="border-color:var(--accent)"></i>cavity now (heated)</span>
+        <span><i style="border-color:var(--beam)"></i>laser</span>
+      </div>
+      <div class="plotbox"><canvas id="cvSpec"></canvas></div>
+    </div>
   </div>
-
   <div class="card">
     <h2 id="outTitle">Reflection vs laser detuning</h2>
     <div class="legend" id="outLegend"></div>
-    <canvas id="cvOut"></canvas>
+    <div class="plotbox"><canvas id="cvOut"></canvas></div>
   </div>
 </main>
+</div>
 </div>
 
 <script>
@@ -141,6 +148,7 @@ const RATE = 0.003; // laser sweep rate dΔ/dt (adiabatic: RATE·TAU ≪ κ)
 
 const S = {ports:1, geom:'fp', ki:0.5, ke1:0.5, ke2:0.5, sym:true, P:1, nl:'th', secs:10, X:10, flip:false};
 const D = {};
+let SCALE = 1;
 let SS = null, traces = [], lastPt = null, dragging = false;
 const sim = {ar:0, ai:0, dl:0, Delta:10, target:10, next:null, paused:false};
 
@@ -254,28 +262,29 @@ function ticks(a, b, n){
   return out;
 }
 class Plot {
-  constructor(cv, m){ this.cv = cv; this.ctx = cv.getContext('2d'); this.m = Object.assign({l:50, r:14, t:10, b:36}, m||{}); }
+  constructor(cv, m){ this.cv = cv; this.ctx = cv.getContext('2d'); this.m = Object.assign({l:58, r:16, t:10, b:44}, m||{}); }
   resize(){
-    const r = this.cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-    const W = Math.max(10, Math.round(r.width)), H = Math.max(10, Math.round(r.height));
-    if (this.cv.width !== W*dpr || this.cv.height !== H*dpr){ this.cv.width = W*dpr; this.cv.height = H*dpr; }
-    this.ctx.setTransform(dpr,0,0,dpr,0,0); this.W = W; this.H = H; this.ctx.clearRect(0,0,W,H);
+    const k = (window.devicePixelRatio || 1)*SCALE;
+    const W = Math.max(10, this.cv.offsetWidth), H = Math.max(10, this.cv.offsetHeight);
+    const bw = Math.round(W*k), bh = Math.round(H*k);
+    if (this.cv.width !== bw || this.cv.height !== bh){ this.cv.width = bw; this.cv.height = bh; }
+    this.ctx.setTransform(k,0,0,k,0,0); this.W = W; this.H = H; this.ctx.clearRect(0,0,W,H);
   }
   range(x0,x1,y0,y1,flip){ Object.assign(this,{x0,x1,y0,y1,flip}); }
   X(x){ const t = (x-this.x0)/(this.x1-this.x0); return this.m.l + (this.flip ? 1-t : t)*(this.W-this.m.l-this.m.r); }
   Y(y){ return this.H - this.m.b - (y-this.y0)/(this.y1-this.y0)*(this.H-this.m.t-this.m.b); }
   axes(xl, yl){
     const c = this.ctx, m = this.m, W = this.W, H = this.H;
-    c.save(); c.font = '11.5px system-ui,sans-serif'; c.lineWidth = 1;
+    c.save(); c.font = '14px system-ui,sans-serif'; c.lineWidth = 1;
     c.textAlign = 'center'; c.fillStyle = C.muted;
-    for (const v of ticks(this.x0, this.x1, Math.max(4, Math.floor((W-m.l-m.r)/60)))){ const x = this.X(v); c.strokeStyle = C.grid; c.beginPath(); c.moveTo(x,m.t); c.lineTo(x,H-m.b); c.stroke(); c.fillText(String(+v.toFixed(4)), x, H-m.b+14); }
+    for (const v of ticks(this.x0, this.x1, Math.max(4, Math.floor((W-m.l-m.r)/60)))){ const x = this.X(v); c.strokeStyle = C.grid; c.beginPath(); c.moveTo(x,m.t); c.lineTo(x,H-m.b); c.stroke(); c.fillText(String(+v.toFixed(4)), x, H-m.b+17); }
     c.textAlign = 'right';
     for (const v of ticks(this.y0, this.y1, Math.max(2, Math.floor((H-m.t-m.b)/45)))){ const y = this.Y(v); c.strokeStyle = C.grid; c.beginPath(); c.moveTo(m.l,y); c.lineTo(W-m.r,y); c.stroke(); c.fillText(String(+v.toFixed(4)), m.l-5, y+4); }
     c.strokeStyle = C.frame; c.strokeRect(m.l+.5, m.t+.5, W-m.l-m.r-1, H-m.t-m.b-1);
-    c.fillStyle = '#3b4252'; c.font = '12px system-ui,sans-serif'; c.textAlign = 'center';
-    if (xl) c.fillText(xl, (m.l+W-m.r)/2, H-4);
-    if (yl){ c.save(); c.translate(13, (m.t+H-m.b)/2); c.rotate(-Math.PI/2); c.fillText(yl, 0, 0); c.restore(); }
-    c.font = '600 11.5px system-ui,sans-serif';
+    c.fillStyle = '#3b4252'; c.font = '15px system-ui,sans-serif'; c.textAlign = 'center';
+    if (xl) c.fillText(xl, (m.l+W-m.r)/2, H-5);
+    if (yl){ c.save(); c.translate(16, (m.t+H-m.b)/2); c.rotate(-Math.PI/2); c.fillText(yl, 0, 0); c.restore(); }
+    c.font = '600 14px system-ui,sans-serif';
     c.textAlign = 'left';  c.fillStyle = this.flip ? C.blue : C.red; c.fillText(this.flip ? '← blue' : '← red', m.l, H-4);
     c.textAlign = 'right'; c.fillStyle = this.flip ? C.red : C.blue; c.fillText(this.flip ? 'red →' : 'blue →', W-m.r, H-4);
     c.restore();
@@ -368,13 +377,13 @@ function wavy(x1, y1, x2, y2){
   const tx=x1+L*Math.cos(a), ty=y1+L*Math.sin(a), bx=x1+L*.82*Math.cos(a), by=y1+L*.82*Math.sin(a);
   return `<path d="${d}" fill="none" stroke="#868e96" stroke-width="1.6"/><polygon points="${tx},${ty} ${bx+5*Math.sin(a)},${by-5*Math.cos(a)} ${bx-5*Math.sin(a)},${by+5*Math.cos(a)}" fill="#868e96"/>`;
 }
-const T = (id, x, y, anchor, col, size, weight) => `<text id="${id}" x="${x}" y="${y}" text-anchor="${anchor||'middle'}" font-size="${size||13}" fill="${col||'#3b4252'}" ${weight?`font-weight="${weight}"`:''}></text>`;
+const T = (id, x, y, anchor, col, size, weight) => `<text id="${id}" x="${x}" y="${y}" text-anchor="${anchor||'middle'}" font-size="${size||15}" fill="${col||'#3b4252'}" ${weight?`font-weight="${weight}"`:''}></text>`;
 
 function buildDiagram(){
   let h = `<defs><filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
     <linearGradient id="mirP" x1="0" x2="1"><stop offset="0" stop-color="#d0ebff"/><stop offset="1" stop-color="#74c0fc"/></linearGradient>
     <radialGradient id="glowG"><stop offset="0" stop-color="#ff6b6b" stop-opacity=".85"/><stop offset=".7" stop-color="#ff8787" stop-opacity=".35"/><stop offset="1" stop-color="#ff8787" stop-opacity="0"/></radialGradient></defs>`;
-  h += T('tKappa', 16, 20, 'start', '#3b4252', 13, 600);
+  h += T('tKappa', 16, 20, 'start', '#3b4252', 15, 600);
   if (S.geom === 'fp'){
     const xL = 250, xR = 430, y0 = 135;
     h += `<rect id="glow" x="${xL+6}" y="80" width="${xR-xL-12}" height="110" fill="url(#glowG)" opacity="0"/>`;
@@ -383,39 +392,39 @@ function buildDiagram(){
     h += `<rect x="${xL-6}" y="65" width="12" height="140" rx="2" fill="url(#mirP)" stroke="#1864ab"/>`;
     h += S.ports === 1 ? `<rect x="${xR-6}" y="65" width="16" height="140" rx="2" fill="#495057" stroke="#212529"/>`
                        : `<rect x="${xR-6}" y="65" width="12" height="140" rx="2" fill="url(#mirP)" stroke="#1864ab"/>`;
-    h += arrow('aIn', 30, 118, xL-14, 118) + T('tIn1', 120, 90) + T('tIn2', 120, 107, 'middle', '#3b4252', 12.5);
-    h += arrow('aO1', xL-14, 152, 30, 152) + T('tO1', 120, 175, 'middle', '#3b4252', 13.5, 600);
-    if (S.ports === 2) h += arrow('aO2', xR+16, y0, 590, y0) + T('tO2', 515, y0-12, 'middle', '#3b4252', 13.5, 600);
+    h += arrow('aIn', 30, 118, xL-14, 118) + T('tIn1', 120, 90) + T('tIn2', 120, 107, 'middle', '#3b4252', 14.5);
+    h += arrow('aO1', xL-14, 152, 30, 152) + T('tO1', 120, 175, 'middle', '#3b4252', 15.5, 600);
+    if (S.ports === 2) h += arrow('aO2', xR+16, y0, 590, y0) + T('tO2', 515, y0-12, 'middle', '#3b4252', 15.5, 600);
     h += wavy(340, 76, 340, 34) + T('tKi', 352, 46, 'start', '#495057');
     h += T('tKe1', xL, 226, 'middle', '#1864ab') + T('tKe2', xR+2, 226, 'middle', S.ports===1 ? '#495057' : '#1864ab');
-    h += T('tA', 340, 226, 'middle', '#3b4252', 12.5);
+    h += T('tA', 340, 226, 'middle', '#3b4252', 14.5);
   } else {
     const cx = 340, cy = 130, R = 50, yb = cy+R+13, yt = cy-R-13;
     h += `<rect x="30" y="${yb-4}" width="560" height="8" fill="#ced4da"/><rect id="wIn" x="30" y="${yb-4}" width="310" height="8" fill="${C.beam}" opacity="0"/><rect id="wO1" x="340" y="${yb-4}" width="250" height="8" fill="${C.beam}" opacity="0"/>`;
-    h += arrow('aIn', 50, yb+20, 170, yb+20) + T('tIn1', 110, yb+38) + T('tIn2', 110, yb+54, 'middle', '#3b4252', 12.5);
-    h += arrow('aO1', 450, yb+20, 570, yb+20) + T('tO1', 510, yb+40, 'middle', '#3b4252', 13.5, 600);
+    h += arrow('aIn', 50, yb+20, 170, yb+20) + T('tIn1', 110, yb+38) + T('tIn2', 110, yb+54, 'middle', '#3b4252', 14.5);
+    h += arrow('aO1', 450, yb+20, 570, yb+20) + T('tO1', 510, yb+40, 'middle', '#3b4252', 15.5, 600);
     if (S.ports === 2){
       h += `<rect x="30" y="${yt-4}" width="560" height="8" fill="#ced4da"/><rect id="wO2" x="30" y="${yt-4}" width="310" height="8" fill="${C.beam}" opacity="0"/>`;
-      h += arrow('aO2', 170, yt-16, 50, yt-16) + T('tO2', 110, yt-24, 'middle', '#3b4252', 13.5, 600);
+      h += arrow('aO2', 170, yt-16, 50, yt-16) + T('tO2', 110, yt-24, 'middle', '#3b4252', 15.5, 600);
       h += T('tKe2', cx-90, yt+24, 'middle', '#1864ab');
     } else h += T('tKe2', 0, -50);
     h += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#ced4da" stroke-width="10"/>`;
     h += `<circle id="glow" cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#ff6b6b" stroke-width="16" filter="url(#blur)" opacity="0"/>`;
     h += `<circle id="wave" cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${C.beam}" stroke-width="4" opacity="0"/>`;
     h += wavy(cx+R+8, cy-6, cx+R+56, cy-30) + T('tKi', cx+R+62, cy-28, 'start', '#495057');
-    h += T('tKe1', cx-90, yb-12, 'middle', '#1864ab') + T('tA', cx, cy+5, 'middle', '#3b4252', 12.5);
+    h += T('tKe1', cx-90, yb-12, 'middle', '#1864ab') + T('tA', cx, cy+5, 'middle', '#3b4252', 14.5);
   }
   // thermometer / carrier gauge
   h += `<g id="gauge"><rect x="626" y="40" width="14" height="110" rx="7" fill="#fff" stroke="#adb5bd" stroke-width="1.5"/>
     <rect id="gFill" x="629" y="147" width="8" height="0" rx="4" fill="${C.red}"/>
     <circle cx="633" cy="160" r="11" id="gBulb" fill="${C.red}" stroke="#adb5bd" stroke-width="1.5"/>
-    ${T('gName', 633, 30, 'middle', '#3b4252', 12.5, 600)}${T('gVal', 633, 192, 'middle', C.accent, 12.5, 600)}${T('gVal2', 633, 208, 'middle', C.accent, 11.5)}</g>`;
+    ${T('gName', 633, 30, 'middle', '#3b4252', 14.5, 600)}${T('gVal', 633, 192, 'middle', C.accent, 14.5, 600)}${T('gVal2', 633, 208, 'middle', C.accent, 13.5)}</g>`;
   $('diag').innerHTML = h;
   $('diagTitle').textContent = (S.ports===1 ? 'One-port ' : 'Two-port ') + (S.geom==='fp' ? 'Fabry–Pérot cavity' : 'ring resonator');
 }
 function setArrow(id, v){ const g = $(id); if (!g) return; v = Math.min(1, Math.max(0, v)); g.setAttribute('opacity', (.12+.88*v).toFixed(3)); g.querySelector('line').setAttribute('stroke-width', (1.2+4*v).toFixed(2)); }
 const setT = (id, s) => { const e = $(id); if (e) e.innerHTML = s; };
-const sub = (b, s) => `${b}<tspan font-size="10" dy="3">${s}</tspan><tspan dy="-3"> </tspan>`;
+const sub = (b, s) => `${b}<tspan font-size="11" dy="3">${s}</tspan><tspan dy="-3"> </tspan>`;
 
 function updateDiagram(){
   const N = sim.ar*sim.ar + sim.ai*sim.ai, I = D.Nmax > 0 ? Math.sqrt(Math.min(1, N/D.Nmax)) : 0, o = outputs(), pin = S.P > 0 ? 1 : 0, nm = names();
@@ -424,7 +433,7 @@ function updateDiagram(){
   for (const [id, v] of [['wIn', pin], ['wO1', o[0]*pin], ['wO2', o[1]*pin]]) if ($(id)) $(id).setAttribute('opacity', (.85*v).toFixed(3));
   const reg = Math.abs(S.ke1 - (S.ki + (S.ports===2 ? S.ke2 : 0))) < 0.02 ? 'critically coupled' : S.ke1 < S.ki + (S.ports===2 ? S.ke2 : 0) ? 'under-coupled' : 'over-coupled';
   setT('tKappa', `κ = ${sub('κ','i')}+ ${sub('κ','e1')}${S.ports===2 ? '+ '+sub('κ','e2') : ''}= ${fmt(D.kappa)}  ·  port 1 ${reg}`);
-  setT('tIn1', `laser  |α${'<tspan font-size="10" dy="3">in</tspan><tspan dy="-3">'}|² = ${fmt(S.P)}</tspan>`);
+  setT('tIn1', `laser  |α${'<tspan font-size="11" dy="3">in</tspan><tspan dy="-3">'}|² = ${fmt(S.P)}</tspan>`);
   setT('tIn2', `Δ = ${fmt(sim.Delta)}`);
   setT('tO1', `${nm[0].replace(' port','').replace('Reflection R','R').replace('Transmission T','T')} = ${fmt(o[0])}`);
   if (S.ports === 2) setT('tO2', `${nm[1].replace(' port','').replace('Transmission T','T')} = ${fmt(o[1])}`);
@@ -456,7 +465,7 @@ function updateStatic(){
     : `Max. shift ${fmt(D.maxShift)} vs. bistability threshold (√3/2)κ = ${fmt(thr)} → <b>${D.maxShift > thr ? 'bistable' : 'no bistability'}</b>.`;
   $('bCycle').textContent = S.nl === 'fc' ? 'Full cycle: red → blue → red' : 'Full cycle: blue → red → blue';
   const nm = names();
-  $('outTitle').textContent = (S.ports === 1 ? nm[0] : nm[1] + ' and ' + nm[0].toLowerCase()) + ' vs laser detuning';
+  $('outTitle').textContent = (S.ports === 1 ? nm[0] : nm[1] + ' and ' + nm[0]) + ' vs laser detuning';
   const L = (col, cls, t) => `<span><i class="${cls||''}" style="border-color:${col}"></i>${t}</span>`;
   $('outLegend').innerHTML = L(C.cold,'dot','cold cavity (linear)') + (D.sigma ? L(C.stable,'','steady state, stable') + L(C.unstable,'dash','unstable') : '') +
     L(C.red,'','laser sweeping toward red') + L(C.blue,'','toward blue') + (S.ports===2 ? L(C.teal,'',nm[0]+' (faint)') : '') +
@@ -487,7 +496,7 @@ function sweep(from, to, back){
 document.querySelectorAll('.param, input[name=ports], input[name=geom], input[name=nl]').forEach(el => el.addEventListener('input', onParam));
 $('bB2R').onclick = () => sweep(S.X, -S.X, false);
 $('bR2B').onclick = () => sweep(-S.X, S.X, false);
-$('bCycle').onclick = () => { traces = []; lastPt = null; S.nl === 'fc' ? sweep(-S.X, S.X, true) : sweep(S.X, -S.X, true); };
+$('bCycle').onclick = () => cycle();
 $('bPause').onclick = () => { sim.paused = !sim.paused; $('bPause').textContent = sim.paused ? 'Resume' : 'Pause'; };
 $('bClear').onclick = () => { traces = []; lastPt = null; };
 const lz = $('laser');
@@ -495,7 +504,21 @@ lz.addEventListener('pointerdown', () => dragging = true);
 window.addEventListener('pointerup', () => dragging = false);
 lz.addEventListener('input', () => { sim.target = +lz.value; sim.next = null; sim.paused = false; $('bPause').textContent = 'Pause'; });
 
+function fit(){
+  const st = $('stage'), s = Math.min(innerWidth/1600, innerHeight/900);
+  SCALE = s;
+  st.style.transform = `translate(${(innerWidth-1600*s)/2}px,${(innerHeight-900*s)/2}px) scale(${s})`;
+}
+window.addEventListener('resize', fit); fit();
+function cycle(){ traces = []; lastPt = null; S.nl === 'fc' ? sweep(-S.X, S.X, true) : sweep(S.X, -S.X, true); }
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' && e.target.type !== 'range' && e.target.type !== 'checkbox') return;
+  if (e.key === ' '){ e.preventDefault(); $('bPause').click(); }
+  else if (e.key === 'c' || e.key === 'C') cycle();
+  else if (e.key === 'r' || e.key === 'R') { traces = []; lastPt = null; }
+});
 function loop(){
+  if ($('loopc').checked && !sim.paused && sim.Delta === sim.target && sim.next === null) cycle();
   advance(); drawSpec(); drawOut(); updateDiagram();
   if (!dragging) lz.value = sim.Delta;
   $('laser_v').textContent = fmt(sim.Delta);
